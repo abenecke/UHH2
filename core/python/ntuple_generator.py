@@ -2555,7 +2555,21 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                         cms.InputTag("genXCone2jets08"),
                                         cms.InputTag("genXCone3jets08"),
                                         cms.InputTag("genXCone4jets08"),
-                                    )
+                                    ) ,
+
+                                    # # ##### Puppi  
+                                    doPuppi = cms.bool(False)
+                                    # nAlgos = cms.InputTag("puppi", "PuppiNAlgos", "USER"),
+                                    # rawAlphas = cms.InputTag("puppi", "PuppiRawAlphas", "USER"),
+                                    # alphas = cms.InputTag("puppi", "PuppiAlphas", "USER"),
+                                    # alphasMed = cms.InputTag("puppi", "PuppiAlphasMed", "USER"),
+                                    # alphasRms = cms.InputTag("puppi", "PuppiAlphasRms", "USER"),
+                                    # mypuppiweight = cms.InputTag("puppi", "PuppiAlphas", "USER"),
+                                    # weightwoWeightCut = cms.InputTag("puppi", "PuppiAlphas", "USER"),
+                                    # pTunweighted = cms.InputTag("puppi", "PuppiAlphas", "USER"), 
+                                    # DeltaZCut = cms.double(0.3),
+                                    # packedPFCandidates = cms.InputTag("packedPFCandidates")
+
 
     )
 

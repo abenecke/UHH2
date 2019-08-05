@@ -14,8 +14,22 @@ core/python/__init__.py
 *.json
 VLQToHiggsPairProd/*
 ZprimeSemiLeptonic/*
+Diboson/*
+Puppi/*
 
 BaconJets/*
 JECDatabase/*
 pydump.py
 Makefile.local
+
+*#*
+
+scripts/crab/JetHT.xml
+scripts/crab/JobConfig.dtd
+scripts/crab/crab.log
+scripts/crab/crab_PUPPI_DY_*_orig/
+scripts/crab/crab_PUPPI_Data_2017_v*/
+scripts/crab/crab_PUPPI_QCD*/
+scripts/crab/crab_PUPPI_Signal_*/
+scripts/crab/crab_SingleVLQ/
+scripts/crab/crab_VH*/

@@ -197,7 +197,8 @@ class NtupleWriter : public edm::EDFilter {
 
       std::vector<L1EGamma>  L1EG_seeds;
       std::vector<L1Jet> L1Jet_seeds;
-
+      std::vector<bool> puppiself;
+      std::vector<bool> puppi;
 };
 
 #endif

@@ -40,18 +40,18 @@ void CommonModules::init(Context & ctx, const std::string & SysType_PU){
     if(mclumiweight)  modules.emplace_back(new MCLumiWeight(ctx));
     if(mcpileupreweight) modules.emplace_back(new MCPileupReweight(ctx,SysType_PU));
     if(jec){
-      jet_corrector_MC.reset(new JetCorrector(ctx, JERFiles::Fall17_17Nov2017_V32_L123_AK4PFchs_MC));
+      jet_corrector_MC.reset(new JetCorrector(ctx, JERFiles::Summer16_07Aug2017_V11_L123_AK4PFPuppi_MC));
     }
     if(jersmear) jet_resolution_smearer.reset(new JetResolutionSmearer(ctx));
   }
   else{
     if(lumisel) lumi_selection.reset(new LumiSelection(ctx));
     if(jec){
-      jet_corrector_B.reset(new JetCorrector(ctx, JERFiles::Fall17_17Nov2017_V32_B_L123_AK4PFchs_DATA));
-      jet_corrector_C.reset(new JetCorrector(ctx, JERFiles::Fall17_17Nov2017_V32_C_L123_AK4PFchs_DATA));
-      jet_corrector_D.reset(new JetCorrector(ctx, JERFiles::Fall17_17Nov2017_V32_D_L123_AK4PFchs_DATA));
-      jet_corrector_E.reset(new JetCorrector(ctx, JERFiles::Fall17_17Nov2017_V32_E_L123_AK4PFchs_DATA));
-      jet_corrector_F.reset(new JetCorrector(ctx, JERFiles::Fall17_17Nov2017_V32_F_L123_AK4PFchs_DATA));
+      jet_corrector_B.reset(new JetCorrector(ctx, JERFiles::Summer16_07Aug2017_V11_B_L123_AK4PFPuppi_DATA));
+      jet_corrector_C.reset(new JetCorrector(ctx, JERFiles::Summer16_07Aug2017_V11_C_L123_AK4PFPuppi_DATA));
+      jet_corrector_D.reset(new JetCorrector(ctx, JERFiles::Summer16_07Aug2017_V11_D_L123_AK4PFPuppi_DATA));
+      jet_corrector_E.reset(new JetCorrector(ctx, JERFiles::Summer16_07Aug2017_V11_E_L123_AK4PFPuppi_DATA));
+      jet_corrector_F.reset(new JetCorrector(ctx, JERFiles::Summer16_07Aug2017_V11_F_L123_AK4PFPuppi_DATA));
     }
   }
   if(metfilters){
@@ -112,6 +112,7 @@ bool CommonModules::process(uhh2::Event & event){
       else if(event.run <= runnr_E) JLC_E->process(event);
       else if(event.run <= runnr_F) JLC_F->process(event);
       else throw runtime_error("CommonModules.cxx: run number not covered by if-statements in process-routine.");
+     
     }
   }
 

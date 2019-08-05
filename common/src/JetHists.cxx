@@ -240,11 +240,11 @@ void TopJetHists::fill(const Event & event){
          double deltaRtjlepton = deltaR(jet, muons[j]);
          deltaR_lepton->Fill(deltaRtjlepton, w);
       }
-      vector<Electron> electrons = *event.electrons;
-      for (unsigned int j = 0; j <electrons.size(); j++){
-         double deltaRtjlepton = deltaR(jet, electrons[j]);
-         deltaR_lepton->Fill(deltaRtjlepton, w);
-      }
+      // vector<Electron> electrons = *event.electrons;
+      // for (unsigned int j = 0; j <electrons.size(); j++){
+      //    double deltaRtjlepton = deltaR(jet, electrons[j]);
+      //    deltaR_lepton->Fill(deltaRtjlepton, w);
+      // }
 
     }
 
