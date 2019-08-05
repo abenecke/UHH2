@@ -43,6 +43,7 @@ bool MCLumiWeight::process(uhh2::Event & event){
 
 
 MCPileupReweight::MCPileupReweight(Context & ctx, const std::string & sysType):
+    h_pu_weight_(ctx.declare_event_output<float>("weight_pu")),
     h_npu_data_up(0),
     h_npu_data_down(0),
     sysType_(sysType)
@@ -54,7 +55,7 @@ MCPileupReweight::MCPileupReweight(Context & ctx, const std::string & sysType):
         return;
     }
 
-    h_pu_weight_ = ctx.declare_event_output<float>("weight_pu");
+    //    h_pu_weight_ = ctx.declare_event_output<float>("weight_pu");
 
     // backward compatibility: (((no tag) is chosen over 25ns) is chosen over 50ns)
     std::string pileup_directory           = ctx.get("pileup_directory",
@@ -132,11 +133,10 @@ MCPileupReweight::MCPileupReweight(Context & ctx, const std::string & sysType):
 }
 
 bool MCPileupReweight::process(Event &event){
-
-    if (event.isRealData) {
-        event.set(h_pu_weight_, 1.f);
-        return true;
-    }
+  if (event.isRealData) {
+    event.set(h_pu_weight_, 1.f);
+    return true;
+  }
 
     double weight = 0., weight_up = 0., weight_down = 0., trueNumInteractions = 0.;
     // handle scenarios where events fall outside of our histograms
@@ -283,7 +283,10 @@ MCMuonScaleFactor::MCMuonScaleFactor(uhh2::Context & ctx,
     if (!sf_hist_.get()) {
       sf_hist_.reset((TH2*) sf_file.Get((sf_name + "/abseta_pair_newTuneP_probe_pt").c_str()));
       if (!sf_hist_.get()) {
-	throw runtime_error("Scale factor directory not found in file: " + sf_name);
+	sf_hist_.reset((TH2*) sf_file.Get((sf_name).c_str()));      
+	if (!sf_hist_.get()) {
+	  throw runtime_error("Scale factor directory not found in file: " + sf_name);
+	}
       }
     }
   }
@@ -631,15 +634,16 @@ bool MCElecScaleFactor::process(uhh2::Event & event) {
 
 
 MCBTagScaleFactor::MCBTagScaleFactor(uhh2::Context & ctx,
-                                     const CSVBTag::wp & working_point,
-                                     const std::string & jets_handle_name,
+				     BTag::algo tagger,
+				     BTag::wp wp,
+				     const std::string & jets_handle_name,
                                      const std::string & sysType,
                                      const std::string & measType_bc,
                                      const std::string & measType_udsg,
                                      const std::string & xml_param_name,
 				     const std::string & weights_name_postfix,
 				     const std::string & xml_calib_name):
-  btag_(CSVBTag(working_point)),
+  btag_(BTag(tagger, wp)),
   h_jets_(ctx.get_handle<std::vector<Jet>>(jets_handle_name)),
   h_topjets_(ctx.get_handle<std::vector<TopJet>>(jets_handle_name)),
   sysType_(sysType),
@@ -675,10 +679,8 @@ MCBTagScaleFactor::MCBTagScaleFactor(uhh2::Context & ctx,
   eff_file.Close();
 
   // https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagCalibration
-  BTagCalibration calib_data("CSVv2", ctx.get(xml_calib_name));
-  auto op = working_point == CSVBTag::WP_LOOSE ? BTagEntry::OP_LOOSE : (
-                working_point == CSVBTag::WP_MEDIUM ? BTagEntry::OP_MEDIUM :
-                    BTagEntry::OP_TIGHT);
+  BTagCalibration calib_data(btag_.GetTagger(), ctx.get(xml_calib_name));
+  BTagEntry::OperatingPoint op = (BTagEntry::OperatingPoint) btag_.GetWorkingPoint();
 
   calib_up_.reset(new BTagCalibrationReader(op, "up"));
   calib_.reset(new BTagCalibrationReader(op, "central"));

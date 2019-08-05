@@ -33,3 +33,5 @@ scripts/crab/crab_PUPPI_QCD*/
 scripts/crab/crab_PUPPI_Signal_*/
 scripts/crab/crab_SingleVLQ/
 scripts/crab/crab_VH*/
+JetsTest/*
+

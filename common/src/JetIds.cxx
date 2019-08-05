@@ -1,7 +1,29 @@
 #include "UHH2/common/include/JetIds.h"
 
+#include "UHH2/common/include/Utils.h"
+
 using namespace std;
 using namespace uhh2;
+
+BTag::BTag(algo tagger, wp working_point) {
+  m_working_point = (int) working_point;
+  switch (tagger) {
+  case CSVV2 :
+    jet_id = CSVBTag((CSVBTag::wp) m_working_point);
+    m_algo = "CSVv2";
+    break;
+  case DEEPCSV :
+    jet_id = DeepCSVBTag((DeepCSVBTag::wp) m_working_point);
+    m_algo = "DeepCSV";
+    break;
+  case DEEPJET :
+    jet_id = DeepJetBTag((DeepJetBTag::wp) m_working_point);
+    m_algo = "DeepJet";
+    break;
+  default:
+    throw invalid_argument("invalid b-tagging algorithm passed to BTag");
+  }
+}
 
 CSVBTag::CSVBTag(wp working_point) {
   m_working_point = working_point;
@@ -403,4 +425,60 @@ bool JetPFID::tightLepVetoID2016(const Jet & jet) const{
   if(fabs(jet.eta())<=2.4 && jet.chargedEmEnergyFraction()>0.90) return false;
   return true;
 
+}
+
+//////// Jet PU id
+JetPUid::JetPUid(wp working_point):m_working_point(working_point){}
+
+// JetPUid::JetPUid(wp working_point) {
+//   m_working_point = working_point;
+// }
+
+
+bool JetPUid::operator()(const Jet & jet, const Event &ev) const{
+  (void) ev;
+  TString wp_str;
+  //  int wp_id;
+  switch(m_working_point){
+  case WP_LOOSE:
+    wp_str = "pileup_loose";
+    // wp_id = 0;
+    break;
+  case WP_MEDIUM:
+    //wp_id = 1;
+    wp_str = "pileup_medium";
+    break;
+  case WP_TIGHT:
+    //wp_id = 2;
+    wp_str = "pileup_tight";
+    break;
+  default:
+    throw invalid_argument("invalid working point passed to JetPUid");
+    }
+  return jet.get_tag(jet.tagname2tag(wp_str.Data()))>0;
+  //return jet.get_tag(wp_id)>0;
+}
+
+JetEtaPhiCleaningId::JetEtaPhiCleaningId(const std::string & mapFilename, const std::string & mapHistname){
+	TFile map_file(locate_file(mapFilename).c_str());
+  if (map_file.IsZombie()) {
+    throw runtime_error("2D map file not found: " + mapFilename);
+  }
+  if (!map_file.GetListOfKeys()->Contains(mapHistname.c_str())) {
+    throw runtime_error("2D map histogram not found in file");
+  }
+  h_map=*((TH2D*) map_file.Get(mapHistname.c_str()));
+  h_map.SetDirectory(0);
+	map_file.Close();
+}
+
+bool JetEtaPhiCleaningId::operator()(const Jet &jet, const Event &ev) const{
+	(void) ev;
+	const TAxis *xaxis = h_map.GetXaxis();
+	const TAxis *yaxis = h_map.GetYaxis();
+	Int_t binx = xaxis->FindBin(jet.eta());
+	Int_t biny = yaxis->FindBin(jet.phi());
+	double cutValue=0;
+	cutValue = h_map.GetBinContent(binx,biny);
+	return cutValue == 0;
 }

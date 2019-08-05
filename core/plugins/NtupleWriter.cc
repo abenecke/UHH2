@@ -34,6 +34,7 @@
 #include "TSystem.h"
 #include "TFile.h"
 #include "TH1.h"
+#include "Compression.h"
 
 using namespace std;
 
@@ -122,7 +123,22 @@ private:
 NtupleWriter::NtupleWriter(const edm::ParameterSet& iConfig): outfile(0), tr(0), setup_output_branches_done(false) {
   fileName = iConfig.getParameter<std::string>("fileName");
   if(!fileName.empty()){
-    outfile = new TFile(fileName.c_str(), "RECREATE");
+    int compLevel = iConfig.getParameter<int>("compressionLevel");
+    outfile = new TFile(fileName.c_str(), "RECREATE", "", compLevel);
+    std::string compAlgo = iConfig.getParameter<std::string>("compressionAlgorithm");
+    if (compAlgo == std::string("ZLIB")) {
+      outfile->SetCompressionAlgorithm(ROOT::kZLIB);
+    } else if (compAlgo == std::string("LZMA")) {
+      outfile->SetCompressionAlgorithm(ROOT::kLZMA);
+    } else if (compAlgo == std::string("Global")) {
+      outfile->SetCompressionAlgorithm(0); // cos the enum ROOT::kUseGlobal doens't work for some reason
+    } else if (compAlgo == std::string("LZ4")) {
+      outfile->SetCompressionAlgorithm(ROOT::kLZ4);
+    } else {
+      throw cms::Exception("NtupleWriter")
+          << "NtupleWriter configured with unknown compression algorithm '" << compAlgo << "'\n"
+          << "Allowed compression algorithms are ZLIB, LZMA, Global, LZ4\n";
+    }
     outfile->cd();
     tr = new TTree("AnalysisTree","AnalysisTree");
   }
@@ -612,6 +628,11 @@ NtupleWriter::NtupleWriter(const edm::ParameterSet& iConfig): outfile(0), tr(0),
       TString name = "triggerObjects_";
       name += triggerObjects_sources[j].c_str();
       branch(tr, name, "std::vector<FlavorParticle>", &triggerObjects_out[j]);
+    }
+    auto extraTriggers_sources = iConfig.getParameter<std::vector<edm::InputTag> >("extra_trigger_bits");
+    for (const auto & etItr : extraTriggers_sources){
+      extraTriggers_names.push_back(etItr.encode().c_str());
+      extraTriggers_tokens.push_back(consumes<bool>(etItr));
     }
   }
 
@@ -1128,8 +1149,8 @@ bool NtupleWriter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
        if(iEvent.isRealData()){
          iEvent.getByToken(triggerPrescales_, packedTriggerPrescales);
-	 iEvent.getByToken(triggerPrescalesL1min_, packedTriggerPrescalesL1min);	 
-	 iEvent.getByToken(triggerPrescalesL1min_, packedTriggerPrescalesL1max);
+         iEvent.getByToken(triggerPrescalesL1min_, packedTriggerPrescalesL1min);
+         iEvent.getByToken(triggerPrescalesL1min_, packedTriggerPrescalesL1max);
        }
        const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
 
@@ -1143,9 +1164,9 @@ bool NtupleWriter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
          if(iEvent.isRealData()){
            triggerPrescales.push_back(packedTriggerPrescales->getPrescaleForIndex(i));
-	   triggerPrescalesL1min.push_back(packedTriggerPrescalesL1min->getPrescaleForIndex(i));
-	   triggerPrescalesL1max.push_back(packedTriggerPrescalesL1max->getPrescaleForIndex(i));
-	 }
+           triggerPrescalesL1min.push_back(packedTriggerPrescalesL1min->getPrescaleForIndex(i));
+           triggerPrescalesL1max.push_back(packedTriggerPrescalesL1max->getPrescaleForIndex(i));
+         }
          if(newrun){
            triggerNames_outbranch.push_back(names.triggerName(i));
          }
@@ -1182,39 +1203,29 @@ bool NtupleWriter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
            }
          }
        }
-
-
-       //PFHT800 emulation
-       /*
-       if(doTrigHTEmu && k==0){
-         if(newrun){
-           triggerNames_outbranch.push_back("HLT_PFHT800Emu_v1");
-         }
-
-         bool found=false;
-         for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i){
-           if (names.triggerName(i).find("HLT_PFHTForMC")!=string::npos && triggerBits->accept(i)) {
-             for (pat::TriggerObjectStandAlone obj : *triggerObjects) {
-               obj.unpackPathNames(names);
-               for (unsigned h = 0; h < obj.filterIds().size(); ++h) {
-                 if (obj.filterIds()[h]==trigger::TriggerTHT && obj.hasPathName( "HLT_PFHTForMC*", true, true )) {
-                   triggerResults.push_back(obj.pt()>800.0);
-                   found=true;
-                 }
-               }
-             }
-           }
-         }
-         if (!found) {triggerResults.push_back(false);}
-
-       }//end PFHT800 emulation
-       */
      }
+     // store extra trigger bits
+     for (uint iET=0; iET<extraTriggers_names.size(); iET++) {
+       if(newrun) {
+        std::string newTrigName = "Extra_"+extraTriggers_names[iET];
+        triggerNames_outbranch.push_back(newTrigName);
+       }
+       edm::Handle<bool> extraTrigHandle;
+       iEvent.getByToken(extraTriggers_tokens[iET], extraTrigHandle);
+       triggerResults.push_back(*extraTrigHandle);
+       if(iEvent.isRealData()){
+         // need to fill as checked when asking for any trigger prescale
+         triggerPrescales.push_back(1);
+         triggerPrescalesL1min.push_back(1);
+         triggerPrescalesL1max.push_back(1);
+       }
+     }
+
      if(newrun){
          event->set_triggernames(triggerNames_outbranch);
      }
      newrun=false;
-   }
+   } // end doTrigger
 
    if (doEcalBadCalib) {
      edm::Handle<bool> passEcalBadCalibFilterUpdate;
