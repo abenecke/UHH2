@@ -12,7 +12,8 @@
 #
 from DasQuery import autocomplete_Datasets
 
-inputDatasets = ['/WprimeToWhToWhadhbb_narrow_M-*_13TeV-madgraph/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM']
+#inputDatasets = ['/DYJetsToLL_M-50_HT-*to*_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_*/MINIAODSIM']
+inputDatasets = ['/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1/MINIAODSIM']
 inputDatasets = autocomplete_Datasets(inputDatasets)
 requestNames = []
 for x in inputDatasets:
@@ -36,12 +37,12 @@ from CRABClient.ClientExceptions import ProxyException
 import os
 
 config = config()
-config.General.workArea = 'crab_VH_WPrime_allmasspoints'
+config.General.workArea = 'crab_PUPPI_DY_2017_v6'
 config.General.transferOutputs = True
 config.General.transferLogs = True
         
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = os.path.join(os.environ['CMSSW_BASE'], 'src/UHH2/core/python/ntuplewriter_mc_2016v2.py')
+config.JobType.psetName = os.path.join(os.environ['CMSSW_BASE'], 'src/UHH2/core/python/ntuplewriter_mc_2017v2_PUPPI_v6.py')
 config.JobType.outputFiles = ["Ntuple.root"]
 config.JobType.maxMemoryMB = 3000
         
@@ -49,7 +50,7 @@ config.Data.inputDBS = 'global'
 config.Data.splitting = 'EventAwareLumiBased'
 config.Data.unitsPerJob = 7500
 try:
-    config.Data.outLFNDirBase = '/store/user/%s/RunII_102X_v1/VH_Wprime_allmasspoints' % (getUsernameFromSiteDB())
+    config.Data.outLFNDirBase = '/store/user/%s/RunII_102X_v1/PUPPIStudies/DY_2017_v6/' % (getUsernameFromSiteDB())
 except ProxyException as e:
     print "Encountered ProxyException:"
     print e.message
