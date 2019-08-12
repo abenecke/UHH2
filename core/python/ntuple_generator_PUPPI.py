@@ -2178,6 +2178,9 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                     #    TestKey = cms.string("TestValue")
                                     #),
                                     fileName=cms.string("Ntuple.root"),
+                                    compressionAlgorithm=cms.string('LZMA'),
+                                    compressionLevel=cms.int32(9),  # LZMA9 is the highest compressions, for a slight increase in CPU/RAM usage
+
                                     year=cms.string(year),
                                     doPV=cms.bool(True),
                                     pv_sources=cms.vstring("offlineSlimmedPrimaryVertices"),

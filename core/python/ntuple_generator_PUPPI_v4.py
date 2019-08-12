@@ -1203,12 +1203,17 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
         modify_patjetproducer_for_data(process, producer)
 
 
-    addJetCollection(process,labelName = 'AK4PFPUPPI', jetSource = cms.InputTag('ak4PuppiJets'), algo = 'AK', rParam=0.4, genJetCollection=cms.InputTag('slimmedGenJets'), jetCorrections =('AK4PFPuppi', ['L1FastJet', 'L2Relative', 'L3Absolute'],'None'),pfCandidates = cms.InputTag('packedPFCandidates'),
+    addJetCollection(process,labelName = 'AK4PFPUPPI', jetSource = cms.InputTag('ak4PuppiJets'), algo = 'AK', rParam=0.4, 
+                     genJetCollection=cms.InputTag('slimmedGenJets'), 
+                     jetCorrections =('AK4PFPuppi', ['L1FastJet', 'L2Relative', 'L3Absolute'],'None'),pfCandidates = cms.InputTag('packedPFCandidates'),
                      pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
                      svSource = cms.InputTag('slimmedSecondaryVertices'),
                      muSource =cms.InputTag( 'slimmedMuons'),
                      elSource = cms.InputTag('slimmedElectrons')
                      )
+    if useData:
+        producer = getattr(process, 'patJetsAK4PFPUPPI')
+        modify_patjetproducer_for_data(process, producer)
 
     ###############################################
     # Packing substructure: fat jets + subjets
@@ -2111,18 +2116,20 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
     # only introduced after samples were produced.
     # Newer samples will already have these.
     do_bad_muon_charged_filters = (year == "2016v2")
+    extra_trigger_bits = cms.VInputTag()
     if do_bad_muon_charged_filters:
         process.load('RecoMET.METFilters.BadPFMuonFilter_cfi')
         process.BadPFMuonFilter.muons = cms.InputTag("slimmedMuons")
         process.BadPFMuonFilter.PFCandidates = cms.InputTag("packedPFCandidates")
-        process.BadPFMuonFilter.taggingMode = False  # Run in filter mode to reject events, not store them
+        process.BadPFMuonFilter.taggingMode = True  # Run in filter mode to reject events, not store them
         task.add(process.BadPFMuonFilter)
+        extra_trigger_bits.append(process.BadPFMuonFilter.label())
 
-        process.load('RecoMET.METFilters.BadChargedCandidateFilter_cfi')
-        process.BadChargedCandidateFilter.muons = cms.InputTag("slimmedMuons")
-        process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidates")
-        process.BadChargedCandidateFilter.taggingMode = False
-        task.add(process.BadChargedCandidateFilter)
+        # process.load('RecoMET.METFilters.BadChargedCandidateFilter_cfi')
+        # process.BadChargedCandidateFilter.muons = cms.InputTag("slimmedMuons")
+        # process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidates")
+        # process.BadChargedCandidateFilter.taggingMode = False
+        # task.add(process.BadChargedCandidateFilter)
 
     # NtupleWriter
     #
@@ -2178,6 +2185,9 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                     #    TestKey = cms.string("TestValue")
                                     #),
                                     fileName=cms.string("Ntuple.root"),
+                                    compressionAlgorithm=cms.string('LZMA'),
+                                    compressionLevel=cms.int32(9),  # LZMA9 is the highest compressions, for a slight increase in CPU/RAM usage
+
                                     year=cms.string(year),
                                     doPV=cms.bool(True),
                                     pv_sources=cms.vstring("offlineSlimmedPrimaryVertices"),
@@ -2491,7 +2501,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                     #  'hltEle27WPLooseGsfTrackIsoFilter',                      # HLT_Ele27_eta2p1_WPLoose_Gsf_v*
                                     #),
                                     trigger_objects=cms.InputTag("selectedPatTrigger" if year == "2016v2" else "slimmedPatTrigger"),
-
+                                    extra_trigger_bits=extra_trigger_bits,
                                     #For 2017 data with prefiring issue it might be usefull to store L1 seeds
                                     doL1seed=cms.bool(True),
                                     l1GtSrc = cms.InputTag("gtStage2Digis"),
@@ -2678,7 +2688,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
 
     if do_bad_muon_charged_filters:
         process.p.insert(0, process.BadPFMuonFilter)
-        process.p.insert(0, process.BadChargedCandidateFilter)
+        #process.p.insert(0, process.BadChargedCandidateFilter)
 
     if year == "2016v2" and (not useData):
         process.load("PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi")
