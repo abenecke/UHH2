@@ -15,7 +15,9 @@ def setup_opts():
                       "Print module summary (# executions, time per module)")
 
     # setup defaults
-    options.maxEvents = 500
+#    options.maxEvents = 1
+    options.maxEvents = 10000
+
     options.outputFile = "Ntuple.root"
     
     return options

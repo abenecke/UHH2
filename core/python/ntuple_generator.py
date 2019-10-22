@@ -206,7 +206,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                 skipEvents=cms.untracked.uint32(0)
                                 )
 
-    process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(100))
+#    process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(100))
 
     # Grid-control changes:
     gc_filenames = '__FILE_NAMES__'
@@ -217,7 +217,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
         #useData = not gc_nickname.startswith('MC_')
         process.source.fileNames = map(lambda s: s.strip(' "'), gc_filenames.split(','))
         process.source.skipEvents = int(os.getenv('SKIP_EVENTS'))
-        process.maxEvents.input = int(os.getenv('MAX_EVENTS'))
+#        process.maxEvents.input = int(os.getenv('MAX_EVENTS'))
 
     ###############################################
     # OUT

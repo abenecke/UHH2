@@ -373,6 +373,7 @@ NtupleWriter::NtupleWriter(const edm::ParameterSet& iConfig): outfile(0), tr(0),
           throw cms::Exception("MissingSourceName", "It is necessary to specify the source of the topjet collection");
         }
         std::string topjet_source = topjets_list[j].getParameter<std::string>("topjet_source");
+	std::cout<< "topjet_source  "<< topjet_source<<std::endl;
         if(!topjets_list[j].exists("subjet_source")){
           throw cms::Exception("MissingSourceName", "It is necessary to specify the subjets for each topjet collection");
         }
@@ -785,6 +786,7 @@ bool NtupleWriter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
        part.set_phi(pf.phi());
        part.set_energy(pf.energy());
        part.set_charge(pf.charge());
+       if(pf.pt()>90)std::cout<<"pt in Ntuplewriter  "<<pf.pt()<<" weight in Ntuplewriter  "<<pf.puppiWeight()<<std::endl;
        part.set_puppiWeight(pf.puppiWeight());
        part.set_puppiWeightNoLep(pf.puppiWeightNoLep());
        PFParticle::EParticleID id = PFParticle::eX;

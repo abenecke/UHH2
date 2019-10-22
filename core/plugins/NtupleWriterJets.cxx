@@ -81,6 +81,8 @@ size_t uhh2::add_pfpart(const reco::Candidate & pf, vector<PFParticle> & pfparts
    part.set_phi(pf.phi());
    part.set_energy(pf.energy());
    part.set_charge(pf.charge());
+   if (iter== nullptr )std::cout<<"Es ist ein Null pointer, kein wunder!!!!!!!!!!"<<std::endl;
+   if (pf.pt()>90) std::cout<<"pt in nutplewriter  "<<pf.pt()<<" weight in NtuplewriterJets "<<iter->puppiWeight()<<"  from pV?  "<<iter->fromPV()<<std::endl;
    part.set_puppiWeight(iter->puppiWeight());
    part.set_puppiWeightNoLep(iter->puppiWeightNoLep());
    PFParticle::EParticleID id = PFParticle::eX;
@@ -979,10 +981,15 @@ void NtupleWriterTopJets::process(const edm::Event & event, uhh2::Event & uevent
     }
     /*-------------------*/
 
+    std::cout<<"uevent number  "<<uevent.event<<std::endl;
+    std::cout<<"uevent lumi "<<uevent.luminosityBlock<<std::endl;
+    std::cout<<"number of topjets  "<< pat_topjets.size()<<std::endl;
     for (unsigned int i = 0; i < pat_topjets.size(); i++) {
         const pat::Jet & pat_topjet =  pat_topjets[i];
         if(pat_topjet.pt() < ptmin) continue;
         if(fabs(pat_topjet.eta()) > etamax) continue;
+
+	std::cout<<"pat_topjets pt  "<<pat_topjet.pt()<<std::endl;
 
         topjets.emplace_back();
         TopJet & topjet = topjets.back();

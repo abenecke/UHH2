@@ -204,10 +204,15 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                 fileNames=cms.untracked.vstring([
                                     '/store/data/Run2017D/JetHT/MINIAOD/17Nov2017-v1/20000/0249B143-8CCC-E711-BA7C-0025905C2CD0.root'
                                 ]),
-                                skipEvents=cms.untracked.uint32(0)
+#                                skipEvents=cms.untracked.uint32(75121) #9626354
+#                                skipEvents=cms.untracked.uint32(75156) #9626389
+#                                skipEvents=cms.untracked.uint32(41450) #7247612
+#                                skipEvents=cms.untracked.uint32(54143) #5807262
+#                                skipEvents=cms.untracked.uint32(60000) #5807262
+#                                skipEvents=cms.untracked.uint32(20351) #5638623
                                 )
 
-    process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(100))
+    process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(5))
 
     # Grid-control changes:
     gc_filenames = '__FILE_NAMES__'
@@ -474,6 +479,9 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
     # unpack stored weights to save time recalculating it
     process.puppi.candName = cms.InputTag('packedPFCandidates')
     process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
+    # process.puppi.candName = cms.InputTag('particleFlow')
+    # process.puppi.vertexName = cms.InputTag('offlinePrimaryVertices')
+
     process.puppi.clonePackedCands = cms.bool(True)
     process.puppi.puppiDiagnostics = cms.bool(True)
     # changed to false since we want to recalculate PUPPI and also weights
@@ -1203,7 +1211,8 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
         modify_patjetproducer_for_data(process, producer)
 
 
-    addJetCollection(process,labelName = 'AK4PFPUPPIwoJEC', jetSource = cms.InputTag('ak4PuppiJets'), algo = 'AK', rParam=0.4, genJetCollection=cms.InputTag('slimmedGenJets'), jetCorrections =('AK4PFPuppi', [],'None'),pfCandidates = cms.InputTag('packedPFCandidates'),
+#AK4PFPUPPIwoJEC
+    addJetCollection(process,labelName = 'Ak4PuppiJets', jetSource = cms.InputTag('ak4PuppiJets'), algo = 'AK', rParam=0.4, genJetCollection=cms.InputTag('slimmedGenJets'), jetCorrections =('AK4PFPuppi', [],'None'),pfCandidates = cms.InputTag('packedPFCandidates'),
                      pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
                      svSource = cms.InputTag('slimmedSecondaryVertices'),
                      muSource =cms.InputTag( 'slimmedMuons'),
@@ -2111,18 +2120,20 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
     # only introduced after samples were produced.
     # Newer samples will already have these.
     do_bad_muon_charged_filters = (year == "2016v2")
+    extra_trigger_bits = cms.VInputTag()
     if do_bad_muon_charged_filters:
         process.load('RecoMET.METFilters.BadPFMuonFilter_cfi')
         process.BadPFMuonFilter.muons = cms.InputTag("slimmedMuons")
         process.BadPFMuonFilter.PFCandidates = cms.InputTag("packedPFCandidates")
-        process.BadPFMuonFilter.taggingMode = False  # Run in filter mode to reject events, not store them
+        process.BadPFMuonFilter.taggingMode = True  # Run in filter mode to reject events, not store them
         task.add(process.BadPFMuonFilter)
+        extra_trigger_bits.append(process.BadPFMuonFilter.label())
 
-        process.load('RecoMET.METFilters.BadChargedCandidateFilter_cfi')
-        process.BadChargedCandidateFilter.muons = cms.InputTag("slimmedMuons")
-        process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidates")
-        process.BadChargedCandidateFilter.taggingMode = False
-        task.add(process.BadChargedCandidateFilter)
+        # process.load('RecoMET.METFilters.BadChargedCandidateFilter_cfi')
+        # process.BadChargedCandidateFilter.muons = cms.InputTag("slimmedMuons")
+        # process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidates")
+        # process.BadChargedCandidateFilter.taggingMode = False
+        # task.add(process.BadChargedCandidateFilter)
 
     # NtupleWriter
     #
@@ -2254,7 +2265,8 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                         "jetsAk4Puppi",
                                         "jetsAk8CHS",
                                         "jetsAk8Puppi",
-                                        "patJetsAK4PFPUPPIwoJEC"
+#                                        "patJetsAK4PFPUPPIwoJEC"
+                                        "patJetsAk4PuppiJets"
                                         ),
                                     jet_ptmin=cms.double(10.0),
                                     jet_etamax=cms.double(999.0),
@@ -2494,7 +2506,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                     #  'hltEle27WPLooseGsfTrackIsoFilter',                      # HLT_Ele27_eta2p1_WPLoose_Gsf_v*
                                     #),
                                     trigger_objects=cms.InputTag("selectedPatTrigger" if year == "2016v2" else "slimmedPatTrigger"),
-
+                                    extra_trigger_bits=extra_trigger_bits,
                                     #For 2017 data with prefiring issue it might be usefull to store L1 seeds
                                     doL1seed=cms.bool(True),
                                     l1GtSrc = cms.InputTag("gtStage2Digis"),
@@ -2654,7 +2666,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                     alphas = cms.InputTag("puppi", "PuppiAlphas", "USER"),
                                     alphasMed = cms.InputTag("puppi", "PuppiAlphasMed", "USER"),
                                     alphasRms = cms.InputTag("puppi", "PuppiAlphasRms", "USER"),
-                                    mypuppiweight = cms.InputTag("puppi", "PuppiAlphas", "USER"),
+                                    mypuppiweight = cms.InputTag("puppi", "MyPuppiWeights", "USER"),
                                     weightwoWeightCut = cms.InputTag("puppi", "PuppiAlphas", "USER"),
                                     pTunweighted = cms.InputTag("puppi", "PuppiAlphas", "USER"), 
                                     DeltaZCut = cms.double(0.3),
@@ -2681,7 +2693,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
 
     if do_bad_muon_charged_filters:
         process.p.insert(0, process.BadPFMuonFilter)
-        process.p.insert(0, process.BadChargedCandidateFilter)
+#        process.p.insert(0, process.BadChargedCandidateFilter)
 
     if year == "2016v2" and (not useData):
         process.load("PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi")

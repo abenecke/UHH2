@@ -12,7 +12,7 @@
 #
 from DasQuery import autocomplete_Datasets
 
-inputDatasets = ['/DYJetsToLL_M-50_HT-*to*_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-*/MINIAODSIM']
+inputDatasets = ['/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3_ext1-v2/MINIAODSIM']
 #inputDatasets = ['/QCD_Pt-15to7000_TuneCUETP8M1_Flat_13TeV_pythia8/RunIISummer16MiniAODv2-PUFlat0to70_magnetOn_80X_mcRun2_asymptotic_2016_TrancheIV_v4-v1/MINIAODSIM']
 inputDatasets = autocomplete_Datasets(inputDatasets)
 requestNames = []
@@ -42,13 +42,16 @@ config.General.transferOutputs = True
 config.General.transferLogs = True
         
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = os.path.join(os.environ['CMSSW_BASE'], 'src/UHH2/core/python/ntuplewriter_mc_2016v2_PUPPI.py')
+config.JobType.psetName = os.path.join(os.environ['CMSSW_BASE'], 'src/UHH2/core/python/ntuplewriter_mc_2016v3.py')
 config.JobType.outputFiles = ["Ntuple.root"]
-config.JobType.maxMemoryMB = 3000
+config.JobType.maxMemoryMB = 2500
         
 config.Data.inputDBS = 'global'
-config.Data.splitting = 'EventAwareLumiBased'
-config.Data.unitsPerJob = 7500
+#config.Data.splitting = 'EventAwareLumiBased'
+config.Data.splitting = 'FileBased'
+config.Data.unitsPerJob = 1
+config.JobType.maxJobRuntimeMin = 2750
+
 try:
     config.Data.outLFNDirBase = '/store/user/%s/RunII_102X_v1/PUPPIStudies/DY_2016_orig/' % (getUsernameFromSiteDB())
 except ProxyException as e:

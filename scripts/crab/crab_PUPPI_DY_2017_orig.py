@@ -37,12 +37,12 @@ from CRABClient.ClientExceptions import ProxyException
 import os
 
 config = config()
-config.General.workArea = 'crab_PUPPI_DY_2017_v4'
+config.General.workArea = 'crab_PUPPI_DY_2017_orig'
 config.General.transferOutputs = True
 config.General.transferLogs = True
         
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = os.path.join(os.environ['CMSSW_BASE'], 'src/UHH2/core/python/ntuplewriter_mc_2017v2_PUPPI.py')
+config.JobType.psetName = os.path.join(os.environ['CMSSW_BASE'], 'src/UHH2/core/python/ntuplewriter_mc_2017v2.py')
 config.JobType.outputFiles = ["Ntuple.root"]
 config.JobType.maxMemoryMB = 3000
         
@@ -50,7 +50,7 @@ config.Data.inputDBS = 'global'
 config.Data.splitting = 'EventAwareLumiBased'
 config.Data.unitsPerJob = 7500
 try:
-    config.Data.outLFNDirBase = '/store/user/%s/RunII_102X_v1/PUPPIStudies/DY_2017_v4/' % (getUsernameFromSiteDB())
+    config.Data.outLFNDirBase = '/store/user/%s/RunII_102X_v1/PUPPIStudies/DY_2017_orig/' % (getUsernameFromSiteDB())
 except ProxyException as e:
     print "Encountered ProxyException:"
     print e.message

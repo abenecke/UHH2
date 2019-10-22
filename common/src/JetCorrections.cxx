@@ -181,7 +181,7 @@ JetCorrector::JetCorrector(uhh2::Context & ctx, const std::vector<std::string> &
 
     //MET should only be corrected using AK8 jets, iff there is no AK4 collection that could be used for this because the calculation of our raw MET is based on AK4 jets
     used_ak4chs = ctx.get("JetCollection")=="jetsAk4CHS";
-    used_ak4puppi = ctx.get("JetCollection")=="jetsAk4Puppi" || ctx.get("JetCollection") == "patJetsAK4PFPUPPIwoJEC";
+    used_ak4puppi = ctx.get("JetCollection")=="jetsAk4Puppi" || ctx.get("JetCollection") == "patJetsAK4PFPUPPIwoJEC"|| ctx.get("JetCollection") == "patJetsAK4PFPUPPI";
     metprop_possible_ak8chs = ctx.get("JetCollection")=="jetsAk8CHS";
     metprop_possible_ak8puppi = ctx.get("JetCollection")=="jetsAk8Puppi";
 
