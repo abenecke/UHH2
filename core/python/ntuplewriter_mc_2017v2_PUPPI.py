@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from UHH2.core.ntuple_generator_PUPPI_v4 import generate_process  # use CMSSW type path for CRABz
+from UHH2.core.ntuple_generator_PUPPI import generate_process  # use CMSSW type path for CRABz
 from UHH2.core.optionsParse import setup_opts, parse_apply_opts
 
 

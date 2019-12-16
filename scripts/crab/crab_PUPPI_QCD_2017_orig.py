@@ -37,7 +37,7 @@ from CRABClient.ClientExceptions import ProxyException
 import os
 
 config = config()
-config.General.workArea = 'crab_PUPPI_QCD_2017_orig'
+config.General.workArea = 'crab_PUPPI_QCD_2017_ultimatev13'
 config.General.transferOutputs = True
 config.General.transferLogs = True
         
@@ -50,7 +50,7 @@ config.Data.inputDBS = 'global'
 config.Data.splitting = 'EventAwareLumiBased'
 config.Data.unitsPerJob = 7500
 try:
-    config.Data.outLFNDirBase = '/store/user/%s/RunII_102X_v1/PUPPIStudies/QCD_2017_orig/' % (getUsernameFromSiteDB())
+    config.Data.outLFNDirBase = '/store/user/%s/RunII_102X_v1/PUPPIStudies/QCD_2017_ultimatev13/' % (getUsernameFromSiteDB())
 except ProxyException as e:
     print "Encountered ProxyException:"
     print e.message

@@ -2661,9 +2661,8 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                     alphas = cms.InputTag("puppi", "PuppiAlphas", "USER"),
                                     alphasMed = cms.InputTag("puppi", "PuppiAlphasMed", "USER"),
                                     alphasRms = cms.InputTag("puppi", "PuppiAlphasRms", "USER"),
-                                    mypuppiweight = cms.InputTag("puppi", "PuppiAlphas", "USER"),
-                                    weightwoWeightCut = cms.InputTag("puppi", "PuppiAlphas", "USER"),
-                                    pTunweighted = cms.InputTag("puppi", "PuppiAlphas", "USER"), 
+                                    mypuppiweight = cms.InputTag("puppi", "MyPuppiWeights", "USER"),
+                                    weightwoWeightCut = cms.InputTag("puppi", "PuppiAlphas", "USER"),                                    pTunweighted = cms.InputTag("puppi", "PuppiAlphas", "USER"), 
                                     DeltaZCut = cms.double(0.3),
                                     packedPFCandidates = cms.InputTag("packedPFCandidates")
 
