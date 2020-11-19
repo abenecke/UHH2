@@ -13,7 +13,7 @@
 
 import re
 from DasQuery import autocomplete_Datasets
-from CRABClient.UserUtilities import config, getUsernameFromSiteDB
+from CRABClient.UserUtilities import config
 
 def get_request_name(dataset_name):
     """Generate short string to use for request name from full dataset name
@@ -46,10 +46,6 @@ def get_request_name(dataset_name):
         modified_name += "_Fall17"
     elif "Autumn18" in dataset_name:
         modified_name += "_Autumn18"
-    elif "Summer19UL17" in dataset_name:
-        modified_name += "_Summer19UL17"
-    elif "Summer19UL18" in dataset_name:
-        modified_name += "_Summer19UL18"
 
     if 'ext1' in dataset_name:
         modified_name += '_ext1'
@@ -89,7 +85,7 @@ import re
 
 
 config = config()
-config.General.workArea = 'crab_PUPPI_PR_2017UL_withdzcut_v6Irene'
+config.General.workArea = 'crab_PUPPI_2017UL_LaurentTune'
 config.General.transferOutputs = True
 config.General.transferLogs = True
 
@@ -104,17 +100,15 @@ config.Data.unitsPerJob = 24000
 
 # Add subdirectory using year from config filename
 pset = os.path.basename(config.JobType.psetName)
-result = re.search(r'(20|UL)1[\d](v\d)?', pset)
+result = re.search(r'201[\d](v\d)?', pset)
 if not result:
     raise RuntimeError("Cannot extract year from psetName! Does your psetName have 201* in it?")
 year = result.group()
-config.Data.outLFNDirBase = '/store/group/uhh/uhh2ntuples/RunII_106X_v1/%s/' % (year)
+config.Data.outLFNDirBase = '/store/user/abenecke/RunII_102X_v1/PUPPIStudies/DY_2017UL_LaurentTune/' 
 
 # If you want to run some private production and not put it in the group area, use this instead:
-# replacing YOUR_CERN_USERNAME_HERE as appropriate
-# config.Data.outLFNDirBase = '/store/user/YOUR_CERN_USERNAME_HERE/RunII_106X_v1/%s/' % (year)
-if 'YOUR_CERN_USERNAME_HERE' in config.Data.outLFNDirBase:
-    raise RuntimeError("You didn't insert your CERN username in config.Data.outLFNDirBase, please fix it")
+# from CRABClient.UserUtilities import getUsernameFromSiteDB
+# config.Data.outLFNDirBase = '/store/user/%s/RunII_102X_v1/%s/' % (getUsernameFromSiteDB(), year)
 
 config.Data.publication = False
 config.JobType.sendExternalFolder = True

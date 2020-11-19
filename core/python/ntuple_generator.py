@@ -59,8 +59,8 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
     if year not in acceptable_years:
         raise ValueError("year argument in generate_process() should be one of: %s. You provided: %s" % (acceptable_years, year))
 
-    met_sources_GL = cms.vstring("slimmedMETs", "slimmedMETsPuppi")
-
+    met_sources_GL = cms.vstring("slimmedMETs", "slimmedMETsPuppi","patPuppiMet")
+#    met_sources_GL = cms.vstring("slimmedMETs", "slimmedMETsPuppi")
 
     if year == "2016v2" and useData:
         # https://twiki.cern.ch/twiki/bin/view/CMSPublic/ReMiniAOD03Feb2017Notes#MET_Recipes
@@ -507,8 +507,111 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
     process.puppi.candName = cms.InputTag('packedPFCandidates')
     process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
     process.puppi.clonePackedCands = cms.bool(True)
-    process.puppi.useExistingWeights = cms.bool(True)
+    process.puppi.puppiDiagnostics = cms.bool(True)
+    # changed to false since we want to recalculate PUPPI and also weights
+    process.puppi.useExistingWeights = cms.bool(False)
+    process.puppi.algos= cms.VPSet( 
+                        cms.PSet( 
+                         etaMin = cms.vdouble(0.),
+                         etaMax = cms.vdouble(2.5),
+                         ptMin  = cms.vdouble(0.),
+                         MinNeutralPt   = cms.vdouble(0.2),
+                         MinNeutralPtSlope   = cms.vdouble(0.015),
+                         RMSEtaSF = cms.vdouble(1.0),
+                         MedEtaSF = cms.vdouble(1.0),
+                         EtaMaxExtrap = cms.double(2.0),
+                         puppiAlgos = process.puppiCentral
+                        ),
+                        cms.PSet( 
+                         etaMin              = cms.vdouble( 2.5,  3.0),
+                         etaMax              = cms.vdouble( 3.0, 10.0),
+                         ptMin               = cms.vdouble( 0.0,  0.0),
+                         # MinNeutralPt        = cms.vdouble( 1.7,  2.0), #original
+                         # MinNeutralPtSlope   = cms.vdouble(0.08, 0.08), #original
+                         MinNeutralPt        = cms.vdouble( 2.0,  2.0), #jme-18-001
+                         MinNeutralPtSlope   = cms.vdouble(0.13, 0.13), #jme-18-001
+                         RMSEtaSF            = cms.vdouble(1.20, 0.95),
+                         MedEtaSF            = cms.vdouble(0.90, 0.75),
+                         EtaMaxExtrap        = cms.double( 2.0),
+                         puppiAlgos = process.puppiForward
+                        ))
+
     task.add(process.puppi)
+    # ## add PUPPI selfcalculated MET
+    from CommonTools.PileupAlgos.PhotonPuppi_cff        import setupPuppiPhoton,setupPuppiPhotonMiniAOD
+    from RecoMET.METProducers.PFMET_cfi import pfMet
+    from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
+    from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
+
+
+#     process.pfNoLepPUPPI = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut =  cms.string("abs(pdgId) != 13 && abs(pdgId) != 11 && abs(pdgId) != 15"))
+#     task.add(process.pfNoLepPUPPI)
+#     process.pfLeptonsPUPPET   = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("abs(pdgId) == 13 || abs(pdgId) == 11 || abs(pdgId) == 15"))
+#     task.add(process.pfLeptonsPUPPET)
+#     addToProcessAndTask('puppiNoLep', process.puppi.clone(), process, task)
+#     process.puppiNoLep.candName = cms.InputTag('pfNoLepPUPPI') 
+#     process.puppiNoLep.useWeightsNoLep = cms.bool(True)
+#     process.puppiNoLep.useExistingWeights = cms.bool(True)
+#     process.puppiMerged = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
+#     task.add(process.puppiMerged)
+#     process.load('CommonTools.PileupAlgos.PhotonPuppi_cff')
+#     task.add(process.puppiPhoton)
+#     addToProcessAndTask('puppiForMET', process.puppiPhoton.clone(), process, task)
+#     process.puppiForMET.candName = cms.InputTag('packedPFCandidates')
+#     process.puppiForMET.photonName = cms.InputTag('slimmedPhotons')
+#     process.puppiForMET.runOnMiniAOD = cms.bool(True)
+# #hier    setupPuppiPhotonMiniAOD(process)
+# #hier    task.add(process.egmPhotonIDTask)
+#     #Line below replaces reference linking wiht delta R matching because the puppi references after merging are not consistent with those of the original packed candidate collection
+#     process.puppiForMET.useRefs          = False
+#     #Line below points puppi MET to puppi no lepton which increases the response
+#     process.puppiForMET.puppiCandName    = 'puppiMerged'
+
+
+    # from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
+    # makePuppiesFromMiniAOD(process)
+
+
+    process.pfNoLepPUPPI = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut =  cms.string("abs(pdgId) != 13 && abs(pdgId) != 11 && abs(pdgId) != 15"))
+    task.add(process.pfNoLepPUPPI)
+    process.pfLeptonsPUPPET   = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("abs(pdgId) == 13 || abs(pdgId) == 11 || abs(pdgId) == 15"))
+    task.add(process.pfLeptonsPUPPET)
+    addToProcessAndTask('puppiNoLep', process.puppi.clone(), process, task)
+    process.puppiNoLep.candName = cms.InputTag('pfNoLepPUPPI') 
+    process.puppiNoLep.useWeightsNoLep = cms.bool(True)
+    process.puppiNoLep.useExistingWeights = cms.bool(True)
+    process.puppiMerged = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
+    task.add(process.puppiMerged)
+    process.load('CommonTools.PileupAlgos.PhotonPuppi_cff')
+    task.add(process.puppiPhoton)
+    addToProcessAndTask('puppiForMET', process.puppiPhoton.clone(), process, task)
+    process.puppiForMET.candName = cms.InputTag('packedPFCandidates')
+    process.puppiForMET.photonName = cms.InputTag('slimmedPhotons')
+    process.puppiForMET.runOnMiniAOD = cms.bool(True)
+    setupPuppiPhotonMiniAOD(process)
+    task.add(process.egmPhotonIDTask)
+    #Line below replaces reference linking wiht delta R matching because the puppi references after merging are not consistent with those of the original packed candidate collection
+    process.puppiForMET.useRefs          = False
+    #Line below points puppi MET to puppi no lepton which increases the response
+    process.puppiForMET.puppiCandName    = 'puppiMerged'
+
+
+    process.load('RecoMET.METProducers.PFMET_cfi')
+    addToProcessAndTask('puppiMet', process.pfMet.clone(), process, task)
+
+    process.puppiMet.src = cms.InputTag("puppiForMET")
+     
+    addMETCollection(process,
+                     labelName = "patPuppiMet",
+                     metSource = "puppiMet"
+                     )
+    getattr(process,"patPuppiMet").addGenMET = False
+
+
+    #add PUPPI self cluster AK4 jet collection
+    process.ak4PuppiJets  = ak4PFJets.clone (src = 'puppi', doAreaFastjet = True, jetPtMin = 2.)
+    task.add(process.ak4PuppiJets)
+
 
     # This is primarily used for JEC studies.
     # It has a low pT threshold, and will not get any substructure info.
@@ -1153,6 +1256,18 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
     # addJetCollection annoyingly
     if useData:
         producer = getattr(process, ak8chs_patname)
+        modify_patjetproducer_for_data(process, producer)
+
+
+#AK4PFPUPPIwoJEC
+    addJetCollection(process,labelName = 'Ak4PuppiJets', jetSource = cms.InputTag('ak4PuppiJets'), algo = 'AK', rParam=0.4, genJetCollection=cms.InputTag('slimmedGenJets'), jetCorrections =('AK4PFPuppi', [],'None'),pfCandidates = cms.InputTag('packedPFCandidates'),
+                     pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+                     svSource = cms.InputTag('slimmedSecondaryVertices'),
+                     muSource =cms.InputTag( 'slimmedMuons'),
+                     elSource = cms.InputTag('slimmedElectrons')
+                     )
+    if useData:
+        producer = getattr(process, 'patJetsAk4PuppiJets')
         modify_patjetproducer_for_data(process, producer)
 
     ###############################################
@@ -2223,7 +2338,8 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                         "jetsAk4CHS",
                                         "jetsAk4Puppi",
                                         "jetsAk8CHS",
-                                        "jetsAk8Puppi"
+                                        "jetsAk8Puppi",
+                                        "patJetsAk4PuppiJets"
                                         ),
                                     jet_ptmin=cms.double(10.0),
                                     jet_etamax=cms.double(999.0),
@@ -2610,7 +2726,19 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                         cms.InputTag("genXCone2jets08"),
                                         cms.InputTag("genXCone3jets08"),
                                         cms.InputTag("genXCone4jets08"),
-                                    )
+                                    ),
+          # ##### Puppi  
+                                    doPuppi = cms.bool(True),
+                                    nAlgos = cms.InputTag("puppi", "PuppiNAlgos", "USER"),
+                                    rawAlphas = cms.InputTag("puppi", "PuppiRawAlphas", "USER"),
+                                    alphas = cms.InputTag("puppi", "PuppiAlphas", "USER"),
+                                    alphasMed = cms.InputTag("puppi", "PuppiAlphasMed", "USER"),
+                                    alphasRms = cms.InputTag("puppi", "PuppiAlphasRms", "USER"),
+                                    mypuppiweight = cms.InputTag("puppi", "MyPuppiWeights", "USER"),
+                                    weightwoWeightCut = cms.InputTag("puppi", "PuppiAlphas", "USER"),
+                                    pTunweighted = cms.InputTag("puppi", "PuppiAlphas", "USER"), 
+                                    DeltaZCut = cms.double(0.3),
+                                    packedPFCandidates = cms.InputTag("packedPFCandidates")
 
     )
 

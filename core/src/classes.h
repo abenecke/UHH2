@@ -17,6 +17,7 @@
 #include "UHH2/core/include/source_candidate.h"
 #include "UHH2/core/include/L1EGamma.h"
 #include "UHH2/core/include/L1Jet.h"
+#include "UHH2/core/include/PuppiParticle.h"
 
 #include <vector>
 #include <map>
@@ -27,6 +28,8 @@ namespace {
     std::map<int, float> mif;
     Particle p;
     std::vector<Particle> ps;
+    PuppiParticle puppip;
+    std::vector<PuppiParticle> puppips;
     FlavorParticle pfl;
     std::vector<FlavorParticle> pfls;
     Jet jet;

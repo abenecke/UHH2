@@ -6,6 +6,7 @@
 #include "UHH2/core/plugins/NtupleWriter.h"
 #include "UHH2/core/plugins/NtupleWriterJets.h"
 #include "UHH2/core/plugins/NtupleWriterLeptons.h"
+#include "UHH2/core/plugins/NtupleWriterPuppi.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -175,6 +176,7 @@ NtupleWriter::NtupleWriter(const edm::ParameterSet& iConfig): outfile(0), tr(0),
   bool doMuons = iConfig.getParameter<bool>("doMuons");
   bool doTaus = iConfig.getParameter<bool>("doTaus");
   bool doJets = iConfig.getParameter<bool>("doJets");
+  bool doPuppi = iConfig.getParameter<bool>("doPuppi");
 
   doGenJets = iConfig.getParameter<bool>("doGenJets");
   doGenJetConstituentsNjets = iConfig.getParameter<unsigned>("doGenJetConstituentsNjets");
@@ -308,7 +310,15 @@ NtupleWriter::NtupleWriter(const edm::ParameterSet& iConfig): outfile(0), tr(0),
           cfg.etamax = tau_etamax;
           writer_modules.emplace_back(new NtupleWriterTaus(cfg, i==0));
       }
+  } 
+ if(doPuppi){
+      using uhh2::NtupleWriterPuppi;
+      auto puppi_sources =iConfig.getParameter<edm::InputTag>("packedPFCandidates");
+      NtupleWriterPuppi::Config cfg(*context, consumesCollector(),puppi_sources,"packedPFCandidates");
+      writer_modules.emplace_back(new NtupleWriterPuppi(cfg,iConfig));
+      
   }
+
   if(doJets){
       using uhh2::NtupleWriterJets;
       auto jet_sources = iConfig.getParameter<std::vector<std::string> >("jet_sources");
@@ -533,8 +543,11 @@ NtupleWriter::NtupleWriter(const edm::ParameterSet& iConfig): outfile(0), tr(0),
     for(size_t j=0; j< met_sources.size(); ++j){
       met_tokens.push_back(consumes<vector<pat::MET>>(met_sources[j]));
       branch(tr, met_sources[j].c_str(), "MET", &met[j]);
-      if (met_sources[j]=="slimmedMETsPuppi") skipMETUncertainties.push_back(true);  // Puppi doesn't have METUncertainty
+      if (met_sources[j]=="slimmedMETsPuppi"|| met_sources[j]=="patPuppiMet") skipMETUncertainties.push_back(true);  // Puppi doesn't have METUncertainty
       else skipMETUncertainties.push_back(false);
+    
+      if(met_sources[j]=="patPuppiMet") puppiself.push_back(true);
+      else puppiself.push_back(false);
     }
     if(!met_sources.empty()){
         event->met = &met[0];
@@ -1038,8 +1051,13 @@ bool NtupleWriter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
          met[j].set_phi(pat_met.phi());
          met[j].set_sumEt(pat_met.sumEt());
          met[j].set_mEtSignificance(pat_met.metSignificance());
-         met[j].set_uncorr_pt(pat_met.uncorPt());
-         met[j].set_uncorr_phi(pat_met.uncorPhi());
+	 if(!puppiself[j]){
+	   met[j].set_uncorr_pt(pat_met.uncorPt());
+	   met[j].set_uncorr_phi(pat_met.uncorPhi());
+	 }else{
+	   met[j].set_uncorr_pt(pat_met.pt());
+	   met[j].set_uncorr_phi(pat_met.phi());
+	 }
          // std::cout<<"MET uncorrPt = "<<pat_met.uncorPt()<<" uncorrPhi = "<<pat_met.uncorPhi()<<" corrPt = "<<pat_met.pt()<<" corrPhi = "<<pat_met.phi()<<std::endl;
          if(!skipMETUncertainties.at(j))
             {
