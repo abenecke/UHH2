@@ -70,7 +70,7 @@ def get_request_name(dataset_name):
     return modified_name
 
 
-inputDatasets = ['/QCD_Pt-15to7000_TuneCP5_Flat2018_13TeV_pythia8/RunIISummer19UL17MiniAOD-FlatPU0to70_106X_mc2017_realistic_v6-v3/MINIAODSIM']
+inputDatasets = ['/QCD_Pt-15to7000_TuneCP5_Flat2018_13TeV_pythia8/RunIISummer19UL18MiniAOD-pilot_106X_upgrade2018_realistic_v11_L1v1-v3/MINIAODSIM']
 inputDatasets = autocomplete_Datasets(inputDatasets)
 requestNames = [get_request_name(x) for x in inputDatasets]
 
@@ -85,12 +85,12 @@ import re
 
 
 config = config()
-config.General.workArea = 'crab_PUPPI_PR_2017UL_withdzcut_v6Irene'
+config.General.workArea = 'crab_PUPPI_PR_2018UL'
 config.General.transferOutputs = True
 config.General.transferLogs = True
 
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = os.path.join(os.environ['CMSSW_BASE'], 'src/UHH2/core/python/ntuplewriter_mc_2017UL_puppi.py')
+config.JobType.psetName = os.path.join(os.environ['CMSSW_BASE'], 'src/UHH2/core/python/ntuplewriter_mc_2018UL_puppi.py')
 config.JobType.outputFiles = ["Ntuple.root"]
 config.JobType.maxMemoryMB = 2500
 
@@ -104,7 +104,7 @@ result = re.search(r'201[\d](v\d)?', pset)
 if not result:
     raise RuntimeError("Cannot extract year from psetName! Does your psetName have 201* in it?")
 year = result.group()
-config.Data.outLFNDirBase = '/store/user/abenecke/RunII_102X_v1/PUPPIStudies/QCD_2017UL_newPR_withdzcut_v6irene/'
+config.Data.outLFNDirBase = '/store/user/%s/RunII_102X_v1/PUPPIStudies/QCD_2018UL_newPR/' % (getUsernameFromSiteDB())
 
 # If you want to run some private production and not put it in the group area, use this instead:
 # from CRABClient.UserUtilities import getUsernameFromSiteDB

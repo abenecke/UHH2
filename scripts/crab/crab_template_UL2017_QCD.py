@@ -13,7 +13,7 @@
 
 import re
 from DasQuery import autocomplete_Datasets
-from CRABClient.UserUtilities import config, getUsernameFromSiteDB
+from CRABClient.UserUtilities import config
 
 def get_request_name(dataset_name):
     """Generate short string to use for request name from full dataset name
@@ -85,7 +85,7 @@ import re
 
 
 config = config()
-config.General.workArea = 'crab_PUPPI_PR_2017UL_withdzcut_v6Irene'
+config.General.workArea = 'crab_PUPPI_2017UL_LaurentTune'
 config.General.transferOutputs = True
 config.General.transferLogs = True
 
@@ -104,7 +104,7 @@ result = re.search(r'201[\d](v\d)?', pset)
 if not result:
     raise RuntimeError("Cannot extract year from psetName! Does your psetName have 201* in it?")
 year = result.group()
-config.Data.outLFNDirBase = '/store/user/abenecke/RunII_102X_v1/PUPPIStudies/QCD_2017UL_newPR_withdzcut_v6irene/'
+config.Data.outLFNDirBase = '/store/user/abenecke/RunII_102X_v1/PUPPIStudies/DY_2017UL_LaurentTune/' 
 
 # If you want to run some private production and not put it in the group area, use this instead:
 # from CRABClient.UserUtilities import getUsernameFromSiteDB
