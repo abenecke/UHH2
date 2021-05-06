@@ -55,7 +55,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
         If the year argument is not one of the allowable options
     """
     year = str(year)  # sanitise string
-    acceptable_years = ["2016v2", "2016v3", "2017v1", "2017v2", "2018", "UL16preVFP", "UL16postVFP", "UL17", "UL18"]
+    acceptable_years = ["2016v2", "2016v3", "2017v1", "2017v2", "2018", "UL16preVFP", "UL16postVFP", "UL17", "UL18","HLTTDR"]
     if year not in acceptable_years:
         raise ValueError("year argument in generate_process() should be one of: %s. You provided: %s" % (acceptable_years, year))
 
@@ -87,6 +87,8 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
         process = cms.Process("USER", eras.Run2_2016)
     elif year == "UL17":
         process = cms.Process("USER", eras.Run2_2017)
+    elif year == "HLTTDR":
+        process = cms.Process("USER", eras.Phase2C9)
     elif year == "UL18":
         process = cms.Process("USER", eras.Run2_2018)
     else:
@@ -155,7 +157,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
         'pfMassIndependentDeepDoubleCvBJetTags:probHbb',
         'pfMassIndependentDeepDoubleCvBJetTags:probHcc',
         'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
-        'pfMassIndependentDeepDoubleCvLJetTags:probQCD',
+        'pfMassIndependentDeepDoubleCvLJetTags:probQCD'
         'pfDeepBoostedJetTags:probHbb',
         'pfDeepBoostedJetTags:probQCDc',
         'pfDeepBoostedJetTags:probQCDbb',
@@ -260,7 +262,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
 
     ###############################################
     # RECO AND GEN SETUP
-    process.load("Configuration.Geometry.GeometryRecoDB_cff")
+    process.load("Configuration.Geometry.GeometryExtended2026D49_cff")
     process.load("Configuration.StandardSequences.MagneticField_cff")
 
     # see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions
@@ -305,6 +307,11 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
         "UL17": {
             "data": "106X_dataRun2_v28",
             "mc": "106X_mc2017_realistic_v7",
+        },
+        "HLTTDR": {
+            "data": "106X_dataRun2_v28",
+            "mc": "111X_mcRun4_realistic_T15_v1",
+            #110X_mcRun4_realistic_v3
         },
         "UL18": {
             "data": "106X_dataRun2_v28",
@@ -1188,22 +1195,20 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
     task.add(process.rekeyPackedPatJetsAk8PuppiJets)
 
     #### update PUPPI to v14
-    from CommonTools.PileupAlgos.customizePuppiTune_cff import UpdatePuppiTuneV14
-    UpdatePuppiTuneV14(process, not useData)
+    # from CommonTools.PileupAlgos.customizePuppiTune_cff import UpdatePuppiTuneV14
+    # UpdatePuppiTuneV14(process, not useData)
 
     # Update DeepBoosted training to V2 for everything but 2016v2
     # Check https://twiki.cern.ch/twiki/bin/view/CMS/DeepAKXTagging for latest recommendations
     # e.g. 2018 specific training
     if (year != "2016v2"):
-        from RecoBTag.MXNet.pfDeepBoostedJet_cff import pfDeepBoostedJetTags, pfMassDecorrelatedDeepBoostedJetTags
-        from RecoBTag.MXNet.Parameters.V02.pfDeepBoostedJetPreprocessParams_cfi import pfDeepBoostedJetPreprocessParams as pfDeepBoostedJetPreprocessParamsV02
-        from RecoBTag.MXNet.Parameters.V02.pfMassDecorrelatedDeepBoostedJetPreprocessParams_cfi import pfMassDecorrelatedDeepBoostedJetPreprocessParams as pfMassDecorrelatedDeepBoostedJetPreprocessParamsV02
+        from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import pfDeepBoostedJetTags, pfMassDecorrelatedDeepBoostedJetTags
+        from RecoBTag.ONNXRuntime.Parameters.DeepBoostedJet.V02.pfDeepBoostedJetPreprocessParams_cfi import pfDeepBoostedJetPreprocessParams as pfDeepBoostedJetPreprocessParamsV02
+        from RecoBTag.ONNXRuntime.Parameters.DeepBoostedJet.V02.pfMassDecorrelatedDeepBoostedJetPreprocessParams_cfi import pfMassDecorrelatedDeepBoostedJetPreprocessParams as pfMassDecorrelatedDeepBoostedJetPreprocessParamsV02
         pfDeepBoostedJetTags.preprocessParams = pfDeepBoostedJetPreprocessParamsV02
-        pfDeepBoostedJetTags.model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet-symbol.json'
-        pfDeepBoostedJetTags.param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet-0000.params'
+        pfDeepBoostedJetTags.model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet.onnx'
         pfMassDecorrelatedDeepBoostedJetTags.preprocessParams = pfMassDecorrelatedDeepBoostedJetPreprocessParamsV02
-        pfMassDecorrelatedDeepBoostedJetTags.model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet-symbol.json'
-        pfMassDecorrelatedDeepBoostedJetTags.param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet-0000.params'
+        pfMassDecorrelatedDeepBoostedJetTags.model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet.onnx'
 
     ###############################################
     # Do deep flavours & deep tagging
@@ -1876,8 +1881,8 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
 
 
 
-    from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff import isoInputs as ele_iso_16
-    from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff import isoInputs as ele_iso_17
+    from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff import isoEffAreas as ele_iso_16
+    from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff import isoEffAreas as ele_iso_17
     iso_input_era_dict = {
         "2016v2": ele_iso_16,
         "2016v3": ele_iso_16,
@@ -1887,6 +1892,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
         "UL16preVFP": ele_iso_17,
         "UL16postVFP": ele_iso_17,
         "UL17": ele_iso_17,
+        "HLTTDR": ele_iso_17,
         "UL18": ele_iso_17,
     }
 
@@ -1950,7 +1956,8 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                                   ),
 
                                                   vmaps_double=cms.vstring(el_isovals),
-                                                  effAreas_file=cms.FileInPath(iso_input_era_dict[year].isoEffAreas)
+#                                                  effAreas_file=cms.FileInPath(iso_input_era_dict[year].isoEffAreas)
+                                                  effAreas_file=cms.FileInPath(iso_input_era_dict[year])
                                                   )
     task.add(process.egmGsfElectronIDs)
     task.add(process.slimmedElectronsUSER)
@@ -2213,7 +2220,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
 
                                     doJets=cms.bool(True),
                                     jet_sources=cms.vstring(
-                                        "jetsAk4CHS",
+                                        # "jetsAk4CHS",
                                         "jetsAk4Puppi",
                                         "jetsAk8CHS",
                                         "jetsAk8Puppi"
@@ -2365,7 +2372,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                         # ) ,
                                     ),
 
-                                    doTrigger=cms.bool(True),
+                                    doTrigger=cms.bool(False),
                                     trigger_bits=cms.InputTag("TriggerResults", "", "HLT"),
                                     # MET filters (HBHE noise, CSC, etc.) are stored as trigger Bits in
                                     # MINIAOD produced in path "PAT"/"RECO" with prefix "Flag_"
@@ -2540,7 +2547,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                     pf_collection_source=cms.InputTag("packedPFCandidates"),
 
                                     # *** HOTVR & XCone stuff
-                                    doXCone=cms.bool(True),
+                                    doXCone=cms.bool(False),
                                     #store PF constituents for XCone_sources: doPFJetConstituentsNjets and doPFJetConstituentsMinJetPt are combined with OR
                                     doPFxconeJetConstituentsNjets=cms.uint32(0),#store constituents for N leading topjets, where N is parameter
                                     doPFxconeJetConstituentsMinJetPt=cms.double(-1),#store constituence for all topjets with pt above threshold, set to negative value if not used
@@ -2548,7 +2555,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                         cms.InputTag("xconePuppi"),
                                         cms.InputTag("xconeCHS"),
                                     ),
-                                    doHOTVR=cms.bool(True),
+                                    doHOTVR=cms.bool(False),
                                     #store PF constituents for HOTVR_sources: doPFJetConstituentsNjets and doPFJetConstituentsMinJetPt are combined with OR
                                     doPFhotvrJetConstituentsNjets=cms.uint32(0),#store constituents for N leading topjets, where N is parameter
                                     doPFhotvrJetConstituentsMinJetPt=cms.double(-1),#store constituence for all topjets with pt above threshold, set to negative value if not used
@@ -2556,11 +2563,11 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                         cms.InputTag("hotvrPuppi")
                                     ),
 
-                                    doGenHOTVR=cms.bool(not useData),
+                                    doGenHOTVR=cms.bool(False),
                                     doGenhotvrJetConstituentsNjets=cms.uint32(0),#store constituents for N leading genjets, where N is parameter
                                     doGenhotvrJetConstituentsMinJetPt=cms.double(-1),#store constituence for all genjets with pt above threshold, set to negative value if not used
 
-                                    doGenXCone=cms.bool(not useData),
+                                    doGenXCone=cms.bool(False),
                                     doGenxconeJetConstituentsNjets=cms.uint32(0),#store constituents for N leading genjets, where N is parameter
                                     doGenxconeJetConstituentsMinJetPt=cms.double(-1),#store constituence for all genjets with pt above threshold, set to negative value if not used
 
