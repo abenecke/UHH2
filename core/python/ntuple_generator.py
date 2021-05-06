@@ -157,7 +157,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
         'pfMassIndependentDeepDoubleCvBJetTags:probHbb',
         'pfMassIndependentDeepDoubleCvBJetTags:probHcc',
         'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
-        'pfMassIndependentDeepDoubleCvLJetTags:probQCD'
+        'pfMassIndependentDeepDoubleCvLJetTags:probQCD',
         'pfDeepBoostedJetTags:probHbb',
         'pfDeepBoostedJetTags:probQCDc',
         'pfDeepBoostedJetTags:probQCDbb',
