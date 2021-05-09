@@ -20,5 +20,15 @@ process.source.fileNames = cms.untracked.vstring([
 options = setup_opts()
 parse_apply_opts(process, options)
 
+from HLTrigger.Configuration.common import producers_by_type
+for producer in producers_by_type(process, 'PATJetProducer'):
+  producer.discriminatorSources = []
+  producer.tagInfoSources = []
+for producer in producers_by_type(process, 'PATJetUpdater'):
+  producer.discriminatorSources = []
+  producer.tagInfoSources = []
+for _tmp in process.MyNtuple.TopJets:
+  del _tmp.higgstaginfo_source
+
 with open('pydump_mc_HLTTDR.py', 'w') as f:
     f.write(process.dumpPython())

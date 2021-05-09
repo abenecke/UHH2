@@ -1195,8 +1195,8 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
     task.add(process.rekeyPackedPatJetsAk8PuppiJets)
 
     #### update PUPPI to v14
-    # from CommonTools.PileupAlgos.customizePuppiTune_cff import UpdatePuppiTuneV14
-    # UpdatePuppiTuneV14(process, not useData)
+    from CommonTools.PileupAlgos.customizePuppiTune_cff import UpdatePuppiTuneV15
+    UpdatePuppiTuneV15(process, not useData)
 
     # Update DeepBoosted training to V2 for everything but 2016v2
     # Check https://twiki.cern.ch/twiki/bin/view/CMS/DeepAKXTagging for latest recommendations
@@ -2220,7 +2220,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
 
                                     doJets=cms.bool(True),
                                     jet_sources=cms.vstring(
-                                        # "jetsAk4CHS",
+                                        "jetsAk4CHS",
                                         "jetsAk4Puppi",
                                         "jetsAk8CHS",
                                         "jetsAk8Puppi"
