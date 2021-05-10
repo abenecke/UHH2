@@ -85,7 +85,7 @@ import re
 
 
 config = config()
-config.General.workArea = 'crab_PUPPI_DY_2018UL_jme_18_001_tune'
+config.General.workArea = 'crab_PUPPI_DY_2018UL_v15_tune'
 config.General.transferOutputs = True
 config.General.transferLogs = True
 
@@ -95,8 +95,10 @@ config.JobType.outputFiles = ["Ntuple.root"]
 config.JobType.maxMemoryMB = 2500
 
 config.Data.inputDBS = 'global'
-config.Data.splitting = 'EventAwareLumiBased'
-config.Data.unitsPerJob = 24000
+# config.Data.splitting = 'EventAwareLumiBased'
+# config.Data.unitsPerJob = 24000
+config.Data.splitting = 'FileBased'
+config.Data.unitsPerJob = 1
 
 # Add subdirectory using year from config filename
 pset = os.path.basename(config.JobType.psetName)
@@ -104,7 +106,7 @@ result = re.search(r'201[\d](v\d)?', pset)
 if not result:
     raise RuntimeError("Cannot extract year from psetName! Does your psetName have 201* in it?")
 year = result.group()
-config.Data.outLFNDirBase = '/store/user/abenecke/RunII_102X_v1/PUPPIStudies/DY_2018UL_jme_18_001/' 
+config.Data.outLFNDirBase = '/store/user/abenecke/RunII_102X_v1/PUPPIStudies/DY_2018UL_v15/' 
 
 # If you want to run some private production and not put it in the group area, use this instead:
 # from CRABClient.UserUtilities import getUsernameFromSiteDB
