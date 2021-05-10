@@ -13,8 +13,6 @@ public:
     m_alphasMed=0;
     m_alphasRms=0;
     m_myweight = 0;
-    m_weightwoWeightCut=0;
-    m_pTunweighted=0;
 
     m_vx=0;
     m_vy=0;
@@ -29,8 +27,6 @@ public:
   double alphasMed() const{return m_alphasMed;}
   double alphasRms() const{return m_alphasRms;}
   double mypuppiweight() const{return m_myweight;}
-  double weightwoWeightCut() const{return m_weightwoWeightCut;}
-  double pTunweighted() const{return m_pTunweighted;}
 
 
 
@@ -51,8 +47,6 @@ public:
   void set_alphasMed(double x){m_alphasMed=x;}
   void set_alphasRms(double x){m_alphasRms=x;}
   void set_mypuppiweight(double x){m_myweight=x;}
-  void set_weightwoWeightCut(double x){m_weightwoWeightCut=x;}
-  void set_pTunweighted(double x){m_pTunweighted=x;}
 
 
   void set_vx(double x){ m_vx=x;}
@@ -74,8 +68,6 @@ private:
   double m_alphasMed;
   double m_alphasRms;
   double m_myweight;
-  double m_weightwoWeightCut;
-  double m_pTunweighted;
 
   double  m_vx;
   double  m_vy;

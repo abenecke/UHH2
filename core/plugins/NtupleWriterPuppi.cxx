@@ -15,8 +15,6 @@ NtupleWriterPuppi::NtupleWriterPuppi(Config & cfg, const edm::ParameterSet& iCon
     alphasMedToken_ = cfg.cc.consumes<std::vector<double>>(iConfig.getParameter<edm::InputTag>("alphasMed"));
     alphasRmsToken_ =cfg.cc.consumes<std::vector<double>>(iConfig.getParameter<edm::InputTag>("alphasRms"));
     puppiweightsToken_ =cfg.cc.consumes<std::vector<double>>(iConfig.getParameter<edm::InputTag>("mypuppiweight"));
-    weightwoWeightCutToken_ = cfg.cc.consumes<std::vector<double>>(iConfig.getParameter<edm::InputTag>("weightwoWeightCut"));
-    pTunweightedToken_ = cfg.cc.consumes<std::vector<double>>(iConfig.getParameter<edm::InputTag>("pTunweighted"));
 
     packedPFCandidatesToken_ = cfg.cc.consumes<reco::CandidateView>(cfg.src);
     fDZCut = iConfig.getParameter<double>("DeltaZCut");
@@ -38,8 +36,6 @@ void NtupleWriterPuppi::process(const edm::Event & event, uhh2::Event & uevent, 
   event.getByToken(alphasMedToken_, TheAlphasMed);
   event.getByToken(alphasRmsToken_, TheAlphasRms);
   event.getByToken(puppiweightsToken_, ThePuppiWeight);
-  event.getByToken(weightwoWeightCutToken_, TheweightwoWeightCut);
-  event.getByToken(pTunweightedToken_, ThepTunweighted);
   event.getByToken(packedPFCandidatesToken_, hPFProduct);
   const reco::CandidateView *pfCol = hPFProduct.product(); 
   event.getByToken(nAlgosToken_, nalgosHandle);
@@ -88,8 +84,6 @@ void NtupleWriterPuppi::fill_puppi_info(PuppiParticle & particle, int ctr, reco:
   particle.set_fromPV(lPack->fromPV());
   particle.set_puppiweight(lPack->puppiWeight());
   particle.set_mypuppiweight((*ThePuppiWeight)[ctr]);
-  particle.set_weightwoWeightCut((*TheweightwoWeightCut)[ctr]);
-  particle.set_pTunweighted((*ThepTunweighted)[ctr]);
   particle.set_dz(lPack->dz());
   particle.set_dxy(lPack->dxy());
   particle.set_fdzcut(fDZCut);
