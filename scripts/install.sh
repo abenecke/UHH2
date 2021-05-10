@@ -139,7 +139,7 @@ time git cms-addpkg RecoJets/JetProducers
 # For JetCorrector, JetResolution objects
 time git cms-addpkg CondFormats/JetMETObjects
 time git cms-addpkg JetMETCorrections/Modules
-time git cms-addphg CommomTools/PileupAlos
+time git cms-addpkg CommonTools/PileupAlgos
 
 # Update FastJet and contribs for HOTVR and UniversalJetCluster
 FJINSTALL=$(fastjet-config --prefix)

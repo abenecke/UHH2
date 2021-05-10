@@ -494,9 +494,24 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
     process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
     process.puppi.clonePackedCands = cms.bool(True)
     process.puppi.puppiDiagnostics = cms.bool(True)
+    
 
     from CommonTools.PileupAlgos.customizePuppiTune_cff import UpdatePuppiTuneV15           
     UpdatePuppiTuneV15(process, not useData)
+
+    from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
+    from RecoMET.METProducers.PFMET_cfi import pfMet
+    process.load('RecoMET.METProducers.PFMET_cfi')
+    addToProcessAndTask('puppiMet', process.pfMet.clone(), process, task)
+
+    process.puppiMet.src = cms.InputTag("puppiForMET")
+
+    addMETCollection(process,
+                     labelName = "patPuppiMet",
+                     metSource = "puppiMet"
+                     )
+    getattr(process,"patPuppiMet").addGenMET = False
+
 
     #add PUPPI self cluster AK4 jet collection
     process.ak4PuppiJets  = ak4PFJets.clone (src = 'puppi', doAreaFastjet = True, jetPtMin = 2.)
