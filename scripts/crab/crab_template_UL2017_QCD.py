@@ -85,12 +85,12 @@ import re
 
 
 config = config()
-config.General.workArea = 'crab_PUPPI_2017UL_LaurentTune'
+config.General.workArea = 'crab_PUPPI_2017UL_alpham1'
 config.General.transferOutputs = True
 config.General.transferLogs = True
 
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = os.path.join(os.environ['CMSSW_BASE'], 'src/UHH2/core/python/ntuplewriter_mc_2017UL_puppi.py')
+config.JobType.psetName = os.path.join(os.environ['CMSSW_BASE'], 'src/UHH2/core/python/ntuplewriter_mc_2017UL.py')
 config.JobType.outputFiles = ["Ntuple.root"]
 config.JobType.maxMemoryMB = 2500
 
@@ -104,7 +104,7 @@ result = re.search(r'201[\d](v\d)?', pset)
 if not result:
     raise RuntimeError("Cannot extract year from psetName! Does your psetName have 201* in it?")
 year = result.group()
-config.Data.outLFNDirBase = '/store/user/abenecke/RunII_102X_v1/PUPPIStudies/DY_2017UL_LaurentTune/' 
+config.Data.outLFNDirBase = '/store/user/abenecke/RunII_102X_v1/PUPPIStudies/QCD_alphadefaultm1/' 
 
 # If you want to run some private production and not put it in the group area, use this instead:
 # from CRABClient.UserUtilities import getUsernameFromSiteDB
