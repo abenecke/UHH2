@@ -166,7 +166,7 @@ time scram b $MAKEFLAGS
 
 # Get the UHH2 repo & JEC,JER files
 cd $CMSSW_BASE/src
-time git clone -b RunII_106X_v1_PUPPI https://github.com/abenecke/UHH2.git
+time git clone -b RunII_106X_PUPPIv15 https://github.com/abenecke/UHH2.git
 cd UHH2
 time git clone https://github.com/cms-jet/JECDatabase.git
 time git clone https://github.com/cms-jet/JRDatabase.git
