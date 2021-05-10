@@ -141,6 +141,10 @@ time git cms-addpkg CondFormats/JetMETObjects
 time git cms-addpkg JetMETCorrections/Modules
 time git cms-addpkg CommonTools/PileupAlgos
 
+time git remote add myfork https://github.com/abenecke/cmssw.git
+time git fetch myfork
+time git cherry-pick 26f4899d9dc15b878be7f2c1ec6681c978fe58dc
+
 # Update FastJet and contribs for HOTVR and UniversalJetCluster
 FJINSTALL=$(fastjet-config --prefix)
 OLD_FJ_VER=$(getToolVersion fastjet)
