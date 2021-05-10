@@ -494,105 +494,9 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
     process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
     process.puppi.clonePackedCands = cms.bool(True)
     process.puppi.puppiDiagnostics = cms.bool(True)
-    # changed to false since we want to recalculate PUPPI and also weights
-    process.puppi.useExistingWeights = cms.bool(False)
-    process.puppi.algos= cms.VPSet( 
-                        cms.PSet( 
-                         etaMin = cms.vdouble(0.),
-                         etaMax = cms.vdouble(2.5),
-                         ptMin  = cms.vdouble(0.),
-                         MinNeutralPt   = cms.vdouble(0.2),
-                         MinNeutralPtSlope   = cms.vdouble(0.015),
-                         RMSEtaSF = cms.vdouble(1.0),
-                         MedEtaSF = cms.vdouble(1.0),
-                         EtaMaxExtrap = cms.double(2.0),
-                         puppiAlgos = process.puppiCentral
-                        ),
-                        cms.PSet( 
-                         etaMin              = cms.vdouble( 2.5,  3.0),
-                         etaMax              = cms.vdouble( 3.0, 10.0),
-                         ptMin               = cms.vdouble( 0.0,  0.0),
-                         # MinNeutralPt        = cms.vdouble( 1.7,  2.0), #original
-                         # MinNeutralPtSlope   = cms.vdouble(0.08, 0.08), #original
-                         MinNeutralPt        = cms.vdouble( 2.0,  2.0), #jme-18-001
-                         MinNeutralPtSlope   = cms.vdouble(0.13, 0.13), #jme-18-001
-                         RMSEtaSF            = cms.vdouble(1.20, 0.95),
-                         MedEtaSF            = cms.vdouble(0.90, 0.75),
-                         EtaMaxExtrap        = cms.double( 2.0),
-                         puppiAlgos = process.puppiForward
-                        ))
 
-    task.add(process.puppi)
-    # ## add PUPPI selfcalculated MET
-    from CommonTools.PileupAlgos.PhotonPuppi_cff        import setupPuppiPhoton,setupPuppiPhotonMiniAOD
-    from RecoMET.METProducers.PFMET_cfi import pfMet
-    from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
-    from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
-
-
-#     process.pfNoLepPUPPI = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut =  cms.string("abs(pdgId) != 13 && abs(pdgId) != 11 && abs(pdgId) != 15"))
-#     task.add(process.pfNoLepPUPPI)
-#     process.pfLeptonsPUPPET   = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("abs(pdgId) == 13 || abs(pdgId) == 11 || abs(pdgId) == 15"))
-#     task.add(process.pfLeptonsPUPPET)
-#     addToProcessAndTask('puppiNoLep', process.puppi.clone(), process, task)
-#     process.puppiNoLep.candName = cms.InputTag('pfNoLepPUPPI') 
-#     process.puppiNoLep.useWeightsNoLep = cms.bool(True)
-#     process.puppiNoLep.useExistingWeights = cms.bool(True)
-#     process.puppiMerged = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
-#     task.add(process.puppiMerged)
-#     process.load('CommonTools.PileupAlgos.PhotonPuppi_cff')
-#     task.add(process.puppiPhoton)
-#     addToProcessAndTask('puppiForMET', process.puppiPhoton.clone(), process, task)
-#     process.puppiForMET.candName = cms.InputTag('packedPFCandidates')
-#     process.puppiForMET.photonName = cms.InputTag('slimmedPhotons')
-#     process.puppiForMET.runOnMiniAOD = cms.bool(True)
-# #hier    setupPuppiPhotonMiniAOD(process)
-# #hier    task.add(process.egmPhotonIDTask)
-#     #Line below replaces reference linking wiht delta R matching because the puppi references after merging are not consistent with those of the original packed candidate collection
-#     process.puppiForMET.useRefs          = False
-#     #Line below points puppi MET to puppi no lepton which increases the response
-#     process.puppiForMET.puppiCandName    = 'puppiMerged'
-
-
-    # from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
-    # makePuppiesFromMiniAOD(process)
-
-
-    process.pfNoLepPUPPI = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut =  cms.string("abs(pdgId) != 13 && abs(pdgId) != 11 && abs(pdgId) != 15"))
-    task.add(process.pfNoLepPUPPI)
-    process.pfLeptonsPUPPET   = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("abs(pdgId) == 13 || abs(pdgId) == 11 || abs(pdgId) == 15"))
-    task.add(process.pfLeptonsPUPPET)
-    addToProcessAndTask('puppiNoLep', process.puppi.clone(), process, task)
-    process.puppiNoLep.candName = cms.InputTag('pfNoLepPUPPI') 
-    process.puppiNoLep.useWeightsNoLep = cms.bool(True)
-    process.puppiNoLep.useExistingWeights = cms.bool(True)
-    process.puppiMerged = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
-    task.add(process.puppiMerged)
-    process.load('CommonTools.PileupAlgos.PhotonPuppi_cff')
-    task.add(process.puppiPhoton)
-    addToProcessAndTask('puppiForMET', process.puppiPhoton.clone(), process, task)
-    process.puppiForMET.candName = cms.InputTag('packedPFCandidates')
-    process.puppiForMET.photonName = cms.InputTag('slimmedPhotons')
-    process.puppiForMET.runOnMiniAOD = cms.bool(True)
-    setupPuppiPhotonMiniAOD(process)
-    task.add(process.egmPhotonIDTask)
-    #Line below replaces reference linking wiht delta R matching because the puppi references after merging are not consistent with those of the original packed candidate collection
-    process.puppiForMET.useRefs          = False
-    #Line below points puppi MET to puppi no lepton which increases the response
-    process.puppiForMET.puppiCandName    = 'puppiMerged'
-
-
-    process.load('RecoMET.METProducers.PFMET_cfi')
-    addToProcessAndTask('puppiMet', process.pfMet.clone(), process, task)
-
-    process.puppiMet.src = cms.InputTag("puppiForMET")
-     
-    addMETCollection(process,
-                     labelName = "patPuppiMet",
-                     metSource = "puppiMet"
-                     )
-    getattr(process,"patPuppiMet").addGenMET = False
-
+    from CommonTools.PileupAlgos.customizePuppiTune_cff import UpdatePuppiTuneV15           
+    UpdatePuppiTuneV15(process, not useData)
 
     #add PUPPI self cluster AK4 jet collection
     process.ak4PuppiJets  = ak4PFJets.clone (src = 'puppi', doAreaFastjet = True, jetPtMin = 2.)
@@ -1299,15 +1203,13 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
     # Check https://twiki.cern.ch/twiki/bin/view/CMS/DeepAKXTagging for latest recommendations
     # e.g. 2018 specific training
     if (year != "2016v2"):
-        from RecoBTag.MXNet.pfDeepBoostedJet_cff import pfDeepBoostedJetTags, pfMassDecorrelatedDeepBoostedJetTags
-        from RecoBTag.MXNet.Parameters.V02.pfDeepBoostedJetPreprocessParams_cfi import pfDeepBoostedJetPreprocessParams as pfDeepBoostedJetPreprocessParamsV02
-        from RecoBTag.MXNet.Parameters.V02.pfMassDecorrelatedDeepBoostedJetPreprocessParams_cfi import pfMassDecorrelatedDeepBoostedJetPreprocessParams as pfMassDecorrelatedDeepBoostedJetPreprocessParamsV02
+        from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import pfDeepBoostedJetTags, pfMassDecorrelatedDeepBoostedJetTags
+        from RecoBTag.ONNXRuntime.Parameters.DeepBoostedJet.V02.pfDeepBoostedJetPreprocessParams_cfi import pfDeepBoostedJetPreprocessParams as pfDeepBoostedJetPreprocessParamsV02
+        from RecoBTag.ONNXRuntime.Parameters.DeepBoostedJet.V02.pfMassDecorrelatedDeepBoostedJetPreprocessParams_cfi import pfMassDecorrelatedDeepBoostedJetPreprocessParams as pfMassDecorrelatedDeepBoostedJetPreprocessParamsV02
         pfDeepBoostedJetTags.preprocessParams = pfDeepBoostedJetPreprocessParamsV02
-        pfDeepBoostedJetTags.model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet-symbol.json'
-        pfDeepBoostedJetTags.param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet-0000.params'
+        pfDeepBoostedJetTags.model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet.onnx'
         pfMassDecorrelatedDeepBoostedJetTags.preprocessParams = pfMassDecorrelatedDeepBoostedJetPreprocessParamsV02
-        pfMassDecorrelatedDeepBoostedJetTags.model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet-symbol.json'
-        pfMassDecorrelatedDeepBoostedJetTags.param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet-0000.params'
+        pfMassDecorrelatedDeepBoostedJetTags.model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet.onnx'
 
     ###############################################
     # Do deep flavours & deep tagging
@@ -2727,8 +2629,6 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                     alphasMed = cms.InputTag("puppi", "PuppiAlphasMed", "USER"),
                                     alphasRms = cms.InputTag("puppi", "PuppiAlphasRms", "USER"),
                                     mypuppiweight = cms.InputTag("puppi", "MyPuppiWeights", "USER"),
-                                    weightwoWeightCut = cms.InputTag("puppi", "PuppiAlphas", "USER"),
-                                    pTunweighted = cms.InputTag("puppi", "PuppiAlphas", "USER"), 
                                     DeltaZCut = cms.double(0.3),
                                     packedPFCandidates = cms.InputTag("packedPFCandidates")
 

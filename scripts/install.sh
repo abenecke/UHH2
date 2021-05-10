@@ -119,7 +119,7 @@ time git clone https://github.com/UHH2/SFrame.git
 # Get CMSSW
 export SCRAM_ARCH=slc7_amd64_gcc700
 checkArch
-CMSREL=CMSSW_10_6_8
+CMSREL=CMSSW_10_6_24
 eval `cmsrel ${CMSREL}`
 cd ${CMSREL}/src
 eval `scramv1 runtime -sh`
@@ -139,6 +139,7 @@ time git cms-addpkg RecoJets/JetProducers
 # For JetCorrector, JetResolution objects
 time git cms-addpkg CondFormats/JetMETObjects
 time git cms-addpkg JetMETCorrections/Modules
+time git cms-addphg CommomTools/PileupAlos
 
 # Update FastJet and contribs for HOTVR and UniversalJetCluster
 FJINSTALL=$(fastjet-config --prefix)
@@ -165,7 +166,13 @@ time scram b $MAKEFLAGS
 
 # Get the UHH2 repo & JEC,JER files
 cd $CMSSW_BASE/src
-time git clone -b RunII_106X_v1 https://github.com/UHH2/UHH2.git
+time git clone -b RunII_106X_v1_PUPPI https://github.com/abenecke/UHH2.git
 cd UHH2
 time git clone https://github.com/cms-jet/JECDatabase.git
 time git clone https://github.com/cms-jet/JRDatabase.git
+cd common
+time git clone https://github.com/UHH2/UHH2-datasets.git
+cd UHH2-datasets
+git remote rename origin UHH2
+git branch -u UHH2/master
+cd ../..
