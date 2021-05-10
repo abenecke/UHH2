@@ -145,6 +145,8 @@ time git remote add myfork https://github.com/abenecke/cmssw.git
 time git fetch myfork
 time git cherry-pick 26f4899d9dc15b878be7f2c1ec6681c978fe58dc
 
+time git cms-addpkg PhysicsTools/PatUtils
+time git cherry-pick 272e4a85d1f9f6c88045ca35b3dc077949aec222
 
 
 # Update FastJet and contribs for HOTVR and UniversalJetCluster
