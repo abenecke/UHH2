@@ -495,9 +495,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
     process.puppi.clonePackedCands = cms.bool(True)
     process.puppi.puppiDiagnostics = cms.bool(True)
     
-
-    from CommonTools.PileupAlgos.customizePuppiTune_cff import UpdatePuppiTuneV15           
-    UpdatePuppiTuneV15(process, not useData)
+    task.add(process.puppi)
 
     from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
     from RecoMET.METProducers.PFMET_cfi import pfMet
@@ -511,6 +509,9 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                      metSource = "puppiMet"
                      )
     getattr(process,"patPuppiMet").addGenMET = False
+
+    from CommonTools.PileupAlgos.customizePuppiTune_cff import UpdatePuppiTuneV15           
+    UpdatePuppiTuneV15(process, not useData)
 
 
     #add PUPPI self cluster AK4 jet collection
