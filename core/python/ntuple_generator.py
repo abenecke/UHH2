@@ -59,7 +59,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
     if year not in acceptable_years:
         raise ValueError("year argument in generate_process() should be one of: %s. You provided: %s" % (acceptable_years, year))
 
-    met_sources_GL = cms.vstring("slimmedMETs", "slimmedMETsPuppi","patPuppiMet")
+    met_sources_GL = cms.vstring("slimmedMETs", "slimmedMETsPuppi")
 #    met_sources_GL = cms.vstring("slimmedMETs", "slimmedMETsPuppi")
 
     if year == "2016v2" and useData:
@@ -509,24 +509,9 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
     process.puppi.clonePackedCands = cms.bool(True)
     process.puppi.puppiDiagnostics = cms.bool(True)
     # changed to false since we want to recalculate PUPPI and also weights
-    process.puppi.useExistingWeights = cms.bool(False)
+    process.puppi.useExistingWeights = cms.bool(True)
 
     task.add(process.puppi)
-    # ## add PUPPI selfcalculated MET
-    from RecoMET.METProducers.PFMET_cfi import pfMet
-    from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
-    from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
-
-    process.load('RecoMET.METProducers.PFMET_cfi')
-    addToProcessAndTask('puppiMet', process.pfMet.clone(), process, task)
-
-    process.puppiMet.src = cms.InputTag("puppiForMET")
-     
-    addMETCollection(process,
-                     labelName = "patPuppiMet",
-                     metSource = "puppiMet"
-                     )
-    getattr(process,"patPuppiMet").addGenMET = False
 
     #### update PUPPI to v14
     # from CommonTools.PileupAlgos.customizePuppiTune_cff import UpdatePuppiTuneV15
