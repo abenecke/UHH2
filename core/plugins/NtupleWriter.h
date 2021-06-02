@@ -124,6 +124,8 @@ class NtupleWriter : public edm::EDFilter {
 
       edm::EDGetToken rho_token;
       edm::EDGetToken bs_token;
+      edm::EDGetToken genp_token_2;
+      edm::EDGetToken genvertex_token;
       edm::EDGetToken generator_token;
       edm::EDGetToken pus_token;
       edm::EDGetToken lhe_token;

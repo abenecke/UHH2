@@ -2635,7 +2635,7 @@ def generate_process(year, useData=True, isDebug=False, fatjet_ptmin=120.):
                                         cms.InputTag("genXCone4jets08"),
                                     ),
           # ##### Puppi  
-                                    doPuppi = cms.bool(True),
+                                    doPuppi = cms.bool(False),
                                     nAlgos = cms.InputTag("puppi", "PuppiNAlgos", "USER"),
                                     rawAlphas = cms.InputTag("puppi", "PuppiRawAlphas", "USER"),
                                     alphas = cms.InputTag("puppi", "PuppiAlphas", "USER"),

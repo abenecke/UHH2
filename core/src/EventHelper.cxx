@@ -28,6 +28,8 @@ EventHelper::EventHelper(uhh2::Context & ctx_): ctx(ctx_), event(0), pvs(false),
     h_isRealData = declare_in_out<bool>("isRealData", "isRealData", ctx);
     h_passEcalBadCalib = declare_in_out<bool>("passEcalBadCalib", "passEcalBadCalib", ctx);
     h_year = declare_in_out<std::string>("year", "year", ctx);
+    h_gpz = declare_in_out<float>("genparticles_zpositon", "genparticles_zpositon", ctx);
+    h_gvz = declare_in_out<float>("genvertex_zpositon", "genvertex_zpositon", ctx);
     h_bsx = declare_in_out<float>("beamspot_x0", "beamspot_x0", ctx);
     h_bsy = declare_in_out<float>("beamspot_y0", "beamspot_y0", ctx);
     h_bsz = declare_in_out<float>("beamspot_z0", "beamspot_z0", ctx);
@@ -96,6 +98,8 @@ void EventHelper::event_read(){
     event->isRealData = event->get(h_isRealData);
     event->passEcalBadCalib = event->get(h_passEcalBadCalib);
     event->year = event->get(h_year);
+    event->genparticles_z = event->get(h_gpz);
+    event->genvertex_z = event->get(h_gvz);
     event->beamspot_x0 = event->get(h_bsx);
     event->beamspot_y0 = event->get(h_bsy);
     event->beamspot_z0 = event->get(h_bsz);
@@ -177,6 +181,8 @@ void EventHelper::event_write(){
     event->set(h_isRealData, event->isRealData);
     event->set(h_passEcalBadCalib, event->passEcalBadCalib);
     event->set(h_year, event->year);
+    event->set(h_gpz, event->genparticles_z);
+    event->set(h_gvz, event->genvertex_z);
     event->set(h_bsx, event->beamspot_x0);
     event->set(h_bsy, event->beamspot_y0);
     event->set(h_bsz, event->beamspot_z0);

@@ -30,6 +30,7 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "TSystem.h"
 #include "TFile.h"
@@ -571,6 +572,10 @@ NtupleWriter::NtupleWriter(const edm::ParameterSet& iConfig): outfile(0), tr(0),
         event->pvs = &pvs[0];
     }
     bs_token = consumes<reco::BeamSpot>( edm::InputTag("offlineBeamSpot"));
+    genp_token_2 = consumes< math::XYZPointF >(edm::InputTag("genParticles:xyz0"));
+    branch(tr,"genparticles_zpositon",&event->genparticles_z);
+    genvertex_token = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
+    branch(tr,"genvertex_zpositon",&event->genvertex_z);
   }
   // these have to be written anyway, since they are needed in EventHelper
   branch(tr, "beamspot_x0",&event->beamspot_x0);
@@ -821,6 +826,17 @@ bool NtupleWriter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
          pvs[j].push_back(pv);
        }
+       edm::Handle< math::XYZPointF > genParticlesPosition;
+       iEvent.getByToken(genp_token_2, genParticlesPosition);
+       //       std::cout<<"gen particle position  "<<genParticlesPosition->z()<<std::endl;
+       event->genparticles_z = genParticlesPosition->z();
+
+       edm::Handle<edm::HepMCProduct> EvtHandle;
+       iEvent.getByToken(genvertex_token, EvtHandle);
+       const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
+       event->genvertex_z = (*Evt->vertices_begin())->point3d().z() / 10.;
+       //       std::cout<<"gen vertex z  "<< (*Evt->vertices_begin())->point3d().z() / 10.<<std::endl;
+
      }
 
      edm::Handle<reco::BeamSpot> beamSpot;

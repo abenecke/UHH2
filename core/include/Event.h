@@ -33,6 +33,8 @@ public:
   float beamspot_x0;
   float beamspot_y0;
   float beamspot_z0;
+  float genparticles_z;
+  float genvertex_z;
   std::vector< PrimaryVertex >* pvs;
   
   std::vector< Electron >* electrons;  

@@ -85,7 +85,7 @@ import re
 
 
 config = config()
-config.General.workArea = 'crab_PUPPI_HLTTDR_default'
+config.General.workArea = 'crab_PUPPI_HLTTDR_default2_vertexinformation'
 config.General.transferOutputs = True
 config.General.transferLogs = True
 
@@ -96,7 +96,7 @@ config.JobType.maxMemoryMB = 2500
 
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'EventAwareLumiBased'
-config.Data.unitsPerJob = 24000
+config.Data.unitsPerJob = 2400
 
 # Add subdirectory using year from config filename
 pset = os.path.basename(config.JobType.psetName)
@@ -104,7 +104,7 @@ pset = os.path.basename(config.JobType.psetName)
 # if not result:
 #     raise RuntimeError("Cannot extract year from psetName! Does your psetName have 201* in it?")
 # year = result.group()
-config.Data.outLFNDirBase = '/store/user/abenecke/RunII_102X_v1/PUPPIStudies/QCD_HLTTDR_default/' 
+config.Data.outLFNDirBase = '/store/user/abenecke/RunII_102X_v1/PUPPIStudies/QCD_HLTTDR_default_vertexinformation/' 
 
 # If you want to run some private production and not put it in the group area, use this instead:
 # from CRABClient.UserUtilities import getUsernameFromSiteDB
